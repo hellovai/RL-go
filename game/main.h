@@ -10,10 +10,12 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#define BOARDSIZE 9
 
 using namespace std;
 
 void usage_err(string );
+
 
 //=================================
 // end guard
