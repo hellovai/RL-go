@@ -1,4 +1,4 @@
 RL-go
 =====
 
-Implements Go with some Reinforcement Learning jklnj
+Implements Go with some Reinforcement Learning
