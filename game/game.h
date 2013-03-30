@@ -20,24 +20,11 @@ class Game{
 	int moves;
 	bool my_status;
 
-	vector<Move> perimeter;
-
-	string GetCharPlayer(int);
-	bool Recurse(Move, int, bool);
-	Move updateMove(Move move, int dir);
-	bool MoveFlip(Move move, int dir, bool found);
-	int OtherPlayer();
 
 public:
 	Game(int);
 	void Print();
-	void Print(bool);
 	void Reset();
-	vector<Move> ValidMove();
-	bool isValid(Move);
-	void MakeMove(Move);
-	int WhoWon();
-	bool IsFinished(){return my_status;};
 
 };
 
