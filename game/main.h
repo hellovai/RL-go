@@ -10,12 +10,15 @@
 #include <vector>
 #include <string>
 #include <algorithm>
-#define BOARDSIZE 9
+
+
+int BOARDSIZE = 9;
 
 using namespace std;
 
 void usage_err(string );
 
+Move getHuman();
 
 //=================================
 // end guard

@@ -11,3 +11,10 @@
 *.lai
 *.la
 *.a
+
+# Compiled Game
+go
+
+# temporary files
+*~
+*#

@@ -24,6 +24,8 @@ typedef struct {
 	bool visit;		//by default is false
 } Item;
 
+extern BOARDSIZE;
+
 class Game{
 	Item ** currboard;
 	Item ** prevboard;
@@ -38,18 +40,20 @@ class Game{
 	int white_Capture;
 	
 	//private function
-	bool liberty(int, Coor );	//finds liberties for a location
 	bool liberty(Coor );		//finds liberties for a location, default takes in current_player
+	bool liberty(int, Coor );	//finds liberties for a location
 	void eat(Coor );			//eats everything with the group number of the Coordinate
-	int area();					//finds regions of both black and white
+	int* area();					//finds regions of both black and white
 
 public:
 	Game(int);
 	void Print();
 	void Reset();
 	bool Status() { return my_status; };	//checks if finished
+	int Turn() { return current_player; };	//returns current player
 	
 	bool Move(Coor );						// checks if the coordinate is a valid move
+	
 	
 	int* Score();							// uses area()
 };
