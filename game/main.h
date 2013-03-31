@@ -11,14 +11,22 @@
 #include <string>
 #include <algorithm>
 
-
-int BOARDSIZE = 9;
-
 using namespace std;
 
 void usage_err(string );
 
-Move getHuman();
+typedef struct {
+	int x;
+	int y;
+} Coor;
+
+typedef struct {
+	int group;		//used for eating and area, reset to null everytime the board is copied
+	int val;		// -1 for black, 1 for white, 0 for empty
+	bool visit;		//by default is false
+} Item;
+
+Coor getHuman();
 
 //=================================
 // end guard

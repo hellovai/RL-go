@@ -13,20 +13,8 @@
 
 using namespace std;
 
-typedef struct {
-	int x;
-	int y;
-} Coor;
-
-typedef struct {
-	int group;		//used for eating and area, reset to null everytime the board is copied
-	int val;		// -1 for black, 1 for white, 0 for empty
-	bool visit;		//by default is false
-} Item;
-
-extern BOARDSIZE;
-
 class Game{
+	int BOARDSIZE;
 	Item ** currboard;
 	Item ** prevboard;
 	
@@ -43,10 +31,10 @@ class Game{
 	bool liberty(Coor );		//finds liberties for a location, default takes in current_player
 	bool liberty(int, Coor );	//finds liberties for a location
 	void eat(Coor );			//eats everything with the group number of the Coordinate
-	int* area();					//finds regions of both black and white
-
+	int* area();				//finds regions of both black and white
+	string GetCharPlayer(int ); 	//prints symbol
 public:
-	Game(int);
+	Game(int );
 	void Print();
 	void Reset();
 	bool Status() { return my_status; };	//checks if finished

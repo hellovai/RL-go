@@ -13,7 +13,8 @@ using namespace std;
 
 //public functions
 //-1 is black, 1 is white
-Game::Game(){
+Game::Game(int boardsize){
+	BOARDSIZE = boardsize;
 	Reset();
 }
 
@@ -31,12 +32,18 @@ void Game::Reset(){
 	empty.group = NULL;
 	empty.val = 0;
 	empty.visit = false;
-	
-	for(int i=0;i<BOARDSIZE;i++)
+
+	currboard = new Item*[BOARDSIZE];
+	prevboard = new Item*[BOARDSIZE];
+	for(int i=0;i<BOARDSIZE;i++) {
+		currboard[i] = new Item[BOARDSIZE];
+		prevboard[i] = new Item[BOARDSIZE];
 		for(int j=0;j<BOARDSIZE;j++) {
 			currboard[i][j] = empty;
 			prevboard[i][j] = empty;
 		}
+	}
+	cout<<"Board is ready...\n";
 }
 
 void Game::Print(){
@@ -48,10 +55,7 @@ void Game::Print(){
 	{
 		cout<<i<<'\t';
 		for(int j=0;j<BOARDSIZE;j++)
-			if(board[i][j] != 0)
-				cout << '|' << GetCharPlayer(board[i][j]);	
-			else
-				cout << '|' << GetCharPlayer(board[i][j]);
+			cout << '|' << GetCharPlayer(currboard[i][j].val);	
 			cout << '|' << endl;
 	}
 }
@@ -61,12 +65,12 @@ bool Game::Move ( Coor move ) {
 }
 
 //private functions
-char Game::GetCharPlayer(int num){
+string Game::GetCharPlayer(int num){
 	switch(num)
 	{
-		case -1: return '\u25A0';
-		case 1: return '\u25A1';
-		default: return ' ';
+		case -1: return "\u25A0";
+		case 1: return "\u25A1";
+		default: return " ";
 	}
 }
 
@@ -82,7 +86,7 @@ bool Game::liberty(int, Coor ){
 
 //eats everything with the group number of the Coordinate
 void Game::eat(Coor ) {
-	return false;
+	return;
 }
 
 

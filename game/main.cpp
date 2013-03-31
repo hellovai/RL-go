@@ -12,9 +12,12 @@
 #include "game.h"
 // #include "agent.h"
 
+//int boardsize = 0;
+
 using namespace std;
 
 int main (int argc, char* argv[]) {
+	int boardsize = 9;
 	bool c1 = false;
 	bool c2 = false;
 	bool dolog = false;
@@ -24,7 +27,7 @@ int main (int argc, char* argv[]) {
 		string temp = argv[i];
 		if(temp.compare("-b") == 0) {
 			if(++i >= argc) usage_err(temp);
-			BOARDSIZE = atoi(argv[i]);
+			boardsize = atoi(argv[i]);
 		} else if (temp.compare("-c1") == 0) {
 			c1 = true;
 		} else if (temp.compare("-c2") == 0) {
@@ -35,15 +38,19 @@ int main (int argc, char* argv[]) {
 			usage_err(temp);
 	}
 
-	BOARDSIZE = max(9, BOARDSIZE);
-	BOARDSIZE = min(BOARDSIZE, 19);
-
-	Game game(BOARDSIZE);
-	game.ValidMove();
-
+	boardsize = max(9, boardsize);
+	boardsize = min(boardsize, 19);
+	// print starting config
+	cout<<"Configuration: "<<endl;
+	cout<<"\tBoardsize:\t"<<boardsize<<endl;
+	cout<<"\tPlayer 1:\t"<<(c1 ? "Agent" : "Human")<<endl;
+	cout<<"\tPlayer 2:\t"<<(c2 ? "Agent" : "Human")<<endl;
+	
+	Game* game = new Game(boardsize);
+	cout<<"Starting Game...\n";
 	//create game
-	while(!game.Status()) {
-		game.Print();
+	while(!game->Status()) {
+		game->Print();
 		
 		//play game
 		Coor move;
@@ -57,7 +64,7 @@ int main (int argc, char* argv[]) {
 		// 	else move = getHuman();
 		
 		move = getHuman();
-		while(!game.Move(move)) {
+		while(!game->Move(move)) {
 			cout<<"Sorry, ("<<move.x<<" , "<<move.y<<") is invalid!\n";
 			move = getHuman();
 		}
@@ -68,12 +75,13 @@ int main (int argc, char* argv[]) {
 }
 
 void usage_err(string var) {
+	cout<<"Improper usage of '"<<var<<"'"<<endl;
 	cout<<"Usage: ./go "<<endl;
 	exit(0);
 }
 
-Move getHuman() {
-	Move move;
+Coor getHuman() {
+	Coor move;
 	cout<<"Enter Move: ";
 	cin>>move.x>>move.y;
 	return move;
