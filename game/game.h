@@ -28,9 +28,9 @@ class Game{
 	int white_Capture;
 	
 	//private function
-	bool liberty(Coor );		//finds liberties for a location, default takes in current_player
-	bool liberty(int, Coor );	//finds liberties for a location
-	void eat(Coor );			//eats everything with the group number of the Coordinate
+	bool liberty(Coor );		//finds liberties for a location
+	void eat(Coor );			//eats everything with the currect move. Corr is the coordinate of current move.
+        void subeat(Coor );
 	int* area();				//finds regions of both black and white
 	string GetCharPlayer(int ); 	//prints symbol
 public:
@@ -44,6 +44,10 @@ public:
 	
 	
 	int* Score();							// uses area()
+     
+        //void setboard();                   //test function: initialize the board with a desired pattern.
+        //bool liberty(Coor );		//finds liberties for a location
+        //void eat(Coor);
 };
 
 //=================================
