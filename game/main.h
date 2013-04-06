@@ -18,7 +18,13 @@ void usage_err(string );
 typedef struct {
 	int x;
 	int y;
+	Coor(int xInt, int yInt) : x(xInt), y(yInt) { }
 } Coor;
+
+bool operator==(const Coor& lhs, const Coor& rhs)
+{
+    return (lhs.x == rhs.x) && (lhs.y == rhs.x);
+}
 
 typedef struct {
 	int group;		//used for eating and area, reset to null everytime the board is copied

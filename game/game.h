@@ -27,12 +27,19 @@ class Game{
 	int black_Capture;
 	int white_Capture;
 	
+	int grpCtr;
+	bool grpCheck;
+	
 	//private function
 	bool liberty(Coor );		//finds liberties for a location, default takes in current_player
 	bool liberty(int, Coor );	//finds liberties for a location
 	void eat(Coor );			//eats everything with the group number of the Coordinate
 	int* area();				//finds regions of both black and white
 	string GetCharPlayer(int ); 	//prints symbol
+	
+	//just to make typing easier, these check that the move is in bounds
+	bool Game::isOk( Coor );
+	bool Game::isOk( int , int );
 public:
 	Game(int );
 	void Print();
