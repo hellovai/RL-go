@@ -25,9 +25,8 @@ int main (int argc, char* argv[]) {
 	//read arguments and define variable based on them
 	for(int i=1; i<argc; i++) {
 		string temp = argv[i];
-		if(temp.compare("-b") == 0) {
-			if(++i >= argc) usage_err(temp);
-			boardsize = atoi(argv[i]);
+		if(temp.compare("-big") == 0) {
+			boardsize = 19;
 		} else if (temp.compare("-c1") == 0) {
 			c1 = true;
 		} else if (temp.compare("-c2") == 0) {
@@ -38,8 +37,6 @@ int main (int argc, char* argv[]) {
 			usage_err(temp);
 	}
 
-	boardsize = max(9, boardsize);
-	boardsize = min(boardsize, 19);
 	// print starting config
 	cout<<"Configuration: "<<endl;
 	cout<<"\tBoardsize:\t"<<boardsize<<endl;
@@ -53,7 +50,7 @@ int main (int argc, char* argv[]) {
 		game->Print();
 		
 		//play game
-		Coor move;
+		Coor move(-1,-1);
 		
 		// alternate moves once agent is ready
 		// if(game->turn() == -1)
@@ -71,6 +68,8 @@ int main (int argc, char* argv[]) {
 	}
 
 	//display result
+	game->Score();
+	
 	return 0;
 }
 
@@ -81,7 +80,7 @@ void usage_err(string var) {
 }
 
 Coor getHuman() {
-	Coor move;
+	Coor move(-1,-1);
 	cout<<"Enter Move: ";
 	cin>>move.x>>move.y;
 	return move;

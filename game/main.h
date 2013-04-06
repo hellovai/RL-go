@@ -15,16 +15,11 @@ using namespace std;
 
 void usage_err(string );
 
-typedef struct {
+typedef struct coorStruct{
 	int x;
 	int y;
-	Coor(int xInt, int yInt) : x(xInt), y(yInt) { }
+	coorStruct(int xInt, int yInt) : x(xInt), y(yInt) { }
 } Coor;
-
-bool operator==(const Coor& lhs, const Coor& rhs)
-{
-    return (lhs.x == rhs.x) && (lhs.y == rhs.x);
-}
 
 typedef struct {
 	int group;		//used for eating and area, reset to null everytime the board is copied
@@ -33,6 +28,12 @@ typedef struct {
 } Item;
 
 Coor getHuman();
+
+typedef struct grpStuff{
+	int numb;
+	int type;
+	grpStuff(int xInt, int yInt) : numb(xInt), type(yInt) { }
+} grpStruct;
 
 //=================================
 // end guard
