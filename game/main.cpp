@@ -10,16 +10,17 @@
 
 #include "main.h"
 #include "game.h"
-// #include "agent.h"
-
-//int boardsize = 0;
+#include "agent.h"
 
 using namespace std;
 
 int main (int argc, char* argv[]) {
+	srand (time(NULL));
+	
 	int boardsize = 9;
 	bool c1 = false;
 	bool c2 = false;
+	bool debug = false;
 	bool dolog = false;
 
 	//read arguments and define variable based on them
@@ -33,7 +34,9 @@ int main (int argc, char* argv[]) {
 			c2 = true;
 		} else if (temp.compare("-log") == 0) {
 			dolog = true;
-		} else
+		} else if (temp.compare("-debug") == 0) {
+			debug = true;
+		}else
 			usage_err(temp);
 	}
 
@@ -44,27 +47,30 @@ int main (int argc, char* argv[]) {
 	cout<<"\tPlayer 2:\t"<<(c2 ? "Agent" : "Human")<<endl;
 	
 	Game* game = new Game(boardsize);
+	Agent* p1 = new Agent(game);
+	p1->setType(1);
+	
+	Agent* p2 = new Agent(game);
+	
 	cout<<"Starting Game...\n";
 	//create game
 	while(!game->Status()) {
-		game->Print();
+		if(debug || !(game->Turn() == -1 ? c1 : c2 )) game->Print();
 		
 		//play game
 		Coor move(-1,-1);
 		
 		// alternate moves once agent is ready
-		// if(game->turn() == -1)
-		// 	if(c1) move = agent1->move();
-		// 	else move = getHuman();
-		// else
-		// 	if(c2) move = agent2->move();
-		// 	else move = getHuman();
-		
-		move = getHuman();
-		while(!game->Move(move)) {
-			cout<<"Sorry, ("<<move.x<<" , "<<move.y<<") is invalid!\n";
-			move = getHuman();
-		}
+		do {
+			if(game->Turn() == -1)
+				if(c1) move = p1->Move();
+				else move = getHuman();
+			else
+				if(c2) move = p2->Move();
+				else move = getHuman();
+		} while(!game->ValidMove(move));
+
+		game->Move();
 	}
 
 	//display result
@@ -81,7 +87,7 @@ void usage_err(string var) {
 
 Coor getHuman() {
 	Coor move(-1,-1);
-	cout<<"Enter Move: ";
 	cin>>move.x>>move.y;
+	cout<<"Move: "<<move.x<<" "<<move.y<<endl;
 	return move;
 }

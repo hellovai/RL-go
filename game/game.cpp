@@ -13,15 +13,17 @@ using namespace std;
 
 //public functions
 //-1 is black, 1 is white
-Game::Game(int boardsize){
+Game::Game(int boardsize) {
 	BOARDSIZE = boardsize;
 	Reset();
 }
 
-void Game::Reset(){
+void Game::Reset() {
 	current_player = -1;
 	moves = 0;
 	my_status = false;
+	pass = false;
+	validpass = false;
 	black_Count = 181;
 	white_Count = 180;
 	
@@ -55,7 +57,7 @@ void Game::Reset(){
 	cout<<"Board is ready...\n";
 }
 
-void Game::Print(){
+void Game::Print() {
 	cout<<'\t';
 	for(int j=0;j<BOARDSIZE;j++)
 		cout << ' ' << (char) (j+65);
@@ -69,7 +71,7 @@ void Game::Print(){
 	}
 }
 
-void Game::printPrev(){
+void Game::printPrev() {
     cout<<'\t';
     for(int j=0;j<BOARDSIZE;j++)
         cout << ' ' << (char) (j+65);
@@ -82,7 +84,7 @@ void Game::printPrev(){
             cout << '|' << endl;
     }
 }
-void Game::printFuture(){
+void Game::printFuture() {
     cout<<'\t';
     for(int j=0;j<BOARDSIZE;j++)
         cout << ' ' << (char) (j+65);
@@ -95,7 +97,7 @@ void Game::printFuture(){
             cout << '|' << endl;
     }
 }
-void Game::printGroup(){
+void Game::printGroup() {
     cout<<'\t';
     for(int j=0;j<BOARDSIZE;j++)
         cout << ' ' << (char) (j+65);
@@ -116,23 +118,22 @@ void Game::printGroup(){
         cout<<endl;
 }
 
-bool Game::Move ( Coor move ) {
+bool Game::ValidMove ( Coor move ) {
     //special case for passing
     if( (current_player == -1 && black_Count == 0) || (current_player == 1 && white_Count == 0) )
         move = Coor(-1,-1);
-
     if(move.x == -1 && move.y == -1) {
         if(pass)
             my_status = true;
         else
             pass = true;
-        current_player *= -1;
+		validpass = true;
         return true;
     }
 
 	if(!isOk(move))
         return false;
-    cout<<"Move is in range"<<endl;
+    //cout<<"Move is in range"<<endl;
 
     for(int i=0; i<BOARDSIZE; i++)
 		for(int j=0; j<BOARDSIZE; j++) {
@@ -144,30 +145,30 @@ bool Game::Move ( Coor move ) {
 	if( futureboard[move.x][move.y].val != 0 )
 		return false;
 	
-    cout<<"Move not played"<<endl;
+    //cout<<"Move not played"<<endl;
 
     futureboard[move.x][move.y].val = current_player;
     
     eat(move);
 
-    cout<<"Ate possible peices"<<endl;
+    //cout<<"Ate possible peices"<<endl;
 
 	if(!liberty(move))
 		return false;
 	
-    cout<<"Has liberty"<<endl;
+    //cout<<"Has liberty"<<endl;
 
 	//at this point liberty is kept when this happens
 	for(int i=0; i<BOARDSIZE; i++)
 		for(int j=0; j<BOARDSIZE; j++)
 			if(futureboard[i][j].val != prevboard[i][j].val)
-				goto validMove;
-    cout<<"Same as prevboard"<<endl;
-    printPrev();
-    printFuture();
+				return true;
+    //cout<<"Same as prevboard"<<endl;
 	return false;
-	
-	validMove:
+}
+
+void Game::Move() {
+	if(!validpass) {
         pass = false;
         for(int i=0; i<BOARDSIZE; i++)
            for(int j=0; j<BOARDSIZE; j++) {
@@ -178,17 +179,17 @@ bool Game::Move ( Coor move ) {
             black_Count--;
         else
             white_Count--;
-
+	}
+		validpass = false;
         current_player *= -1;
-        
-        if(black_Count + white_Count == 0 )
-            my_status = true;
-
-		return true;
+		moves++;
+		
+//        if( black_Count + white_Count <= 0 )
+//            my_status = true;
 }
 
 //private functions
-string Game::GetCharPlayer(int num){
+string Game::GetCharPlayer(int num) {
 	switch(num)
 	{
 		case 1: return "\u25A0";
@@ -200,7 +201,7 @@ string Game::GetCharPlayer(int num){
 
 
 //finds liberties for a location	
-bool Game::liberty(Coor position ){
+bool Game::liberty(Coor position ) {
     if (futureboard[position.x][position.y].val == 0)
         return true;
     for( int i =0; i< 4; i++) {
@@ -341,5 +342,8 @@ void Game::Score( ) {
             }
         }
     cout<<"Score: \n\tBlack: "<<black<<"\n\tWhite: "<<white<<endl;
+	cout<<"Number of Moves: "<<moves<<endl;
+	cout<<"Black: "<<black_Count<<endl;
+	cout<<"White: "<<white_Count<<endl;
     printGroup();
 }

@@ -13,22 +13,25 @@
 
 using namespace std;
 
-class Game{
+class Game {
+	// add game log
 	int BOARDSIZE;
-	Item ** currboard;
-	Item ** prevboard;
+	Item **currboard;
+	Item **prevboard;
 	Item **futureboard;
 
 	int current_player; // -1, 1
 	int moves;
 	bool my_status; 	// if game is over, then this is true
 	bool pass;
+	bool validpass;
 
 	int black_Count;
 	int white_Count;
 	
 	int grpCtr;
 	int grpCheck;
+	
 	vector<grpStruct> grpVector;
 
 	//private function
@@ -53,14 +56,13 @@ public:
 	void Reset();
 	bool Status() { return my_status; };	//checks if finished
 	int Turn() { return current_player; };	//returns current player
+	Item **board() {return currboard;};
+	int Boardsize() { return BOARDSIZE; };
 	
-	bool Move(Coor );						// checks if the coordinate is a valid move
+	bool ValidMove(Coor );					// checks if the coordinate is a valid move
+	void Move( );							// makes a move if valid
 	
 	void Score();							// uses area()
-     
-        //void setboard();                   //test function: initialize the board with a desired pattern.
-        //bool liberty(Coor );		//finds liberties for a location
-        //void eat(Coor);
 };
 
 //=================================
