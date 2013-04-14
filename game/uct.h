@@ -13,35 +13,6 @@
 
 using namespace std;
 
-typedef struct {
-	int* visit;
-	int* win;
-	Node** next;
-	Actiondata(int boardsize) {
-		visit = new int[boardsize*boardsize+1];
-		win = new int[boardsize*boardsize+1];
-		next = new Node*[boardsize*boardsize+1];
-		for(int i=0; i<boardsize*boardsize+1; i++) {
-			visit[i] = 0;
-			win[i] = 0;
-			next[i] = NULL;
-		}
-	}
-} Actiondata;
-
-class Node {
-	int **board;
-	int boardsize;
-	
-	int win;
-	int visit;
-	
-	Actiondata action(boardsize);
-	
-	public:
-		Node();
-}
-
 class UCT {
 	Node *root;
 	int size;
@@ -54,12 +25,14 @@ class UCT {
 		UCT();
 		~UCT();
 
-		void add(Board, Coor );
-		void delete(Board );
-		Node **search(Coor );
-		Node *search(Board );
+		void insert(Item**, Coor );
+		void delete(Item** );
+		Node **search(Coor ); //searches based on if this moved was played -- lower priority
+		Node *search(Board ); //searches based on variation of this board
+		Node *search(int ); //searches based on ID's
         void clear_tree();
 };
+
 
 //=================================
 // end guard

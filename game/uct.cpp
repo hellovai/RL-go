@@ -7,6 +7,7 @@
 
 #include "uct.h"
 
+//UCT
 UCT::UCT() {
 	root = NULL;
 	size = 0;

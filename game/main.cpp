@@ -36,7 +36,7 @@ int main (int argc, char* argv[]) {
 			dolog = true;
 		} else if (temp.compare("-debug") == 0) {
 			debug = true;
-		}else
+		} else
 			usage_err(temp);
 	}
 
@@ -47,8 +47,11 @@ int main (int argc, char* argv[]) {
 	cout<<"\tPlayer 2:\t"<<(c2 ? "Agent" : "Human")<<endl;
 	
 	Game* game = new Game(boardsize);
-	Agent* p1 = new Agent(game);
+	UCT* gametree = new UCT();
+	Agent* p1 = new Agent(game, gametree);
+	
 	p1->setType(1);
+	p2->setType(1);
 	
 	Agent* p2 = new Agent(game);
 	
@@ -70,7 +73,7 @@ int main (int argc, char* argv[]) {
 				else move = getHuman();
 		} while(!game->ValidMove(move));
 
-		game->Move();
+		game->Move(move);
 	}
 
 	//display result

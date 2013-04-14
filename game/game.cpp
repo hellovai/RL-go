@@ -26,6 +26,7 @@ void Game::Reset() {
 	validpass = false;
 	black_Count = 181;
 	white_Count = 180;
+    moveList.clear();
 	
     if(BOARDSIZE == 9) {
         black_Count -= 140;
@@ -167,7 +168,7 @@ bool Game::ValidMove ( Coor move ) {
 	return false;
 }
 
-void Game::Move() {
+void Game::Move(Coor move) {
 	if(!validpass) {
         pass = false;
         for(int i=0; i<BOARDSIZE; i++)
@@ -180,6 +181,7 @@ void Game::Move() {
         else
             white_Count--;
 	}
+        moveList.push_back(move);
 		validpass = false;
         current_player *= -1;
 		moves++;
@@ -346,4 +348,24 @@ void Game::Score( ) {
 	cout<<"Black: "<<black_Count<<endl;
 	cout<<"White: "<<white_Count<<endl;
     printGroup();
+}
+
+int Game::BlackWin() {   
+    area();
+    int black = 0, white = 0;
+    for (int i=0; i<BOARDSIZE; i++)
+        for (int j = 0; j < BOARDSIZE; j++)
+        {
+            Item curr = futureboard[i][j];
+            if(curr.val == -1) black++;
+            else if(curr.val == 1) white++;
+            else {
+                int grp = curr.group;
+                if(grpVector[grp-1].type < 0) black++;
+                else if(grpVector[grp-1].type > 0) white++;
+            }
+        }
+    if( black > white ) return 1;       //win
+    else if( black == white ) return 0; //tie
+    else return -1;                     //lose
 }

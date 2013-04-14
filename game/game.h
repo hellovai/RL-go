@@ -19,6 +19,7 @@ class Game {
 	Item **currboard;
 	Item **prevboard;
 	Item **futureboard;
+	vector<Coor> moveList;
 
 	int current_player; // -1, 1
 	int moves;
@@ -60,9 +61,11 @@ public:
 	int Boardsize() { return BOARDSIZE; };
 	
 	bool ValidMove(Coor );					// checks if the coordinate is a valid move
-	void Move( );							// makes a move if valid
+	void Move(Coor );							// makes a move if valid
 	
 	void Score();							// uses area()
+	int BlackWin();
+	vector<Coor> History() { return moveList; };
 };
 
 //=================================

@@ -1,7 +1,7 @@
 CC=g++
 CFLAGS=-c -W
 LDFLAGS=
-SOURCES=main.cpp game.cpp agent.cpp
+SOURCES=main.cpp game.cpp agent.cpp node.cpp uct.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=go
 

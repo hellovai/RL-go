@@ -27,14 +27,19 @@ typedef struct {
 	bool visit;		//by default is false
 } Item;
 
-Coor getHuman();
-
 typedef struct grpStuff{
 	int numb;
 	int type;
 	grpStuff(int xInt, int yInt) : numb(xInt), type(yInt) { }
 } grpStruct;
 
+typedef struct { 
+	Node* node;
+	int action;
+} TreeStruct;
+
+
+Coor getHuman();
 //=================================
 // end guard
 #endif

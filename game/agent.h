@@ -15,19 +15,22 @@ using namespace std;
 
 class Agent {
 	Game* game;
-	//UCT* movelist;
+	UCT* UCTtree;
 	bool debug;
 	vector<Coor> moveData;
 	
+	//difficulty of agent
+	int level;
+
 	//type of agent
 	int type;
 	
 	//types of moves
 	int Random();
-	int UCTVanilla();
+	int UCTSearch();
 
 	public:
-		Agent( Game* curr_game );
+		Agent( Game*, UCT* );
 		void Change_game ( Game* curr_game ) { game = curr_game; };
 		void setDebug( bool debg ) { debug = debg; };
 		void setType( int ty ) { type = ty; };
