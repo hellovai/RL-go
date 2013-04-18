@@ -11,6 +11,7 @@
 #include "main.h"
 #include "game.h"
 #include "agent.h"
+#include "uct.h"
 
 using namespace std;
 
@@ -65,14 +66,48 @@ void Agent::Simulate( ) {
 	game = new Game();
 	//set board to current position
 	game->Reset();
+	Node* start = UCT->Root();
 	for(int j=0; j<(int) moveHistory.size(); j++) {
+		if( start == NULL ) {
+			cout<<"Start was null"<<endl;
+			//dump data
+			exit(0);
+		}
 		game->ValidMove(moveHistory[j]);
 		game->Move(moveHistory[j]);
+		start = start->Select(moveHistory[j]);
 	}
-	vector<TreeStruct> preferred = SimTree(); // returns s_0 -> s_t
+	vector<TreeStruct> preferred = SimTree(start); // returns s_0 -> s_t
 	int z = Default();
 	BackUp(preferred, z);
 	game = holder;
+}
+
+vector<TreeStruct> Agent::SimTree(Node* prev) {
+	vector<TreeStruct> reldata;
+	double c = 1.0;
+	Node *curr = prev; //prev->Search(game->board());
+	TreeStruct data;
+	while(!game->Status()) {
+		if(curr == NULL) {
+			move = game->History()[game->History().size() - 1];
+			int rotater = prev->Compare(game->previous());
+			move = mapRotate(move, rotater);
+			curr = UCT->insert(prev, game->board(), move);
+			data.action = move;
+			data.node = curr;
+			reldata.push_back(data);
+			return reldata;
+		}
+		GetValidMoves();
+		data = curr->SelectMove( c, ConvertOneD(moveData), game->Turn(), curr->Compare(game->Board()) );
+		game->ValidMove(data.action);
+		game->Move(data.action);
+		prev = curr;
+		curr = data.node;
+		reldata.push_back(data);
+	}
+	return reldata;	
 }
 
 int Agent::Default() {
@@ -109,8 +144,4 @@ vector<int> Agent::ConvertOneD() {
 	for(int i=0; i<(int) moveData.size(); i++)
 		data.push_back( ( moveData[i].x == -1 || moveData[i].y == -1 ? game->Boardsize()*game->Boardsize() : moveData[i].x*game->Boardsize()+moveData[i].y ) );
 	return data;
-}
-
-vector<TreeStruct> Agent::SimTree() {
-	
 }

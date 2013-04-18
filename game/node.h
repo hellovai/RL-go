@@ -13,18 +13,8 @@
 
 using namespace std;
 
-typedef struct {
-	int visit;
-	double value;
-	Node* next;
-	Actiondata() {
-		visit = 0;
-		value = 0;
-		next = NULL;
-	}
-} Actiondata;
-
 class Node {
+
 	int id;
 	int **board;
 	int boardsize;
@@ -42,7 +32,8 @@ class Node {
 	void Quarter(int **);
 	void HalfQuarter(int **);
 	void ThreeQuarter(int **);
-	double Node::ActionValue( int index, int player, double c );
+	double ActionValue( int index, int player, double c );
+	int ToOneD(Coor move); 
 
 	public:
 		Node(int, Item**, int );
@@ -51,10 +42,26 @@ class Node {
 		void Visit();
 		void Action(int, int);
 		int Compare(Item** );
-		Node* Select(double );
-		TreeStruct SelectMove( double c, vector<int> legal, int player, int rotater );
+		Node* Select(Coor );
+		treestruct SelectMove( double c, vector<int> legal, int player, int rotater );
+		bool addConnect( Node*, Coor );
 };
 
+struct treestruct{ 
+	Node* node;
+	Coor action;
+};
+
+struct act{
+	int visit;
+	double value;
+	Node* next;
+	act() {
+		visit = 0;
+		value = 0;
+		next = NULL;
+	}
+};
 
 //=================================
 // end guard

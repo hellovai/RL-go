@@ -58,6 +58,7 @@ public:
 	bool Status() { return my_status; };	//checks if finished
 	int Turn() { return current_player; };	//returns current player
 	Item **board() {return currboard;};
+	Item **previous() { return prevboard; };
 	int Boardsize() { return BOARDSIZE; };
 	
 	bool ValidMove(Coor );					// checks if the coordinate is a valid move

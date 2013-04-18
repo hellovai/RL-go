@@ -4,12 +4,13 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <cmath>
 
 #include "main.h"
 #include "node.h"
 
 //Node 
-Node::Node(int itemid, Item** currentBoard, int currsize)) {
+Node::Node(int itemid, Item** currentBoard, int currsize) {
 	id = itemid;
 	visit = 0;
 	boardsize = currsize;
@@ -19,8 +20,8 @@ Node::Node(int itemid, Item** currentBoard, int currsize)) {
 		for (int j = 0; j < boardsize; j++)
 			board[i][j] = currentBoard[i][j].val;
 	}
-	action = new ActionData[boardsize*boardsize+1];
-	action[boardsize*boardsize].node = this;
+	action = new Actiondata[boardsize*boardsize+1];
+	action[boardsize*boardsize].next = this;
 }
 
 void Node::Visit() {
@@ -28,8 +29,12 @@ void Node::Visit() {
 }
 
 void Node::Action(int actionid, int win) {
-	action.visit[actionid]++;
-	action.value[actionid] += ( (double) win - action.value[actionid]) / action.visit[actionid];
+	action[actionid].visit++;
+	action[actionid].value += ( (double) win - action[actionid].value) / action[actionid].visit;
+}
+
+Node* Node::Select( Coor move ) {
+	return action[ToOneD(move)].next;
 }
 
 int Node::Compare(Item** toCompare) {
@@ -39,19 +44,20 @@ int Node::Compare(Item** toCompare) {
 		for (int j = 0; j < boardsize; j++)
 			newboard[i][j] = toCompare[i][j].val;
 	}
-	int rotater = 1;
+	int rotater = 8;
 	Rotate(rotater, newboard);
-	while(!Same(newboard) && rotater < 8) {
+	while(!Same(newboard) && rotater > -1) {
 		Rotate(-rotater, newboard);
-		Rotate(++rotater, newboard);
+		Rotate(--rotater, newboard);
 	}
 	return rotater;
 }
 
-TreeStruct Node::Select( double c, vector<int> legal, int player, int rotater ) {
+TreeStruct Node::SelectMove( double c, vector<int> legal, int player, int rotater ) {
 	double key = ActionValue( legal[0], player, c );
-	vector<int> index = {0};
-	for( int i = 0; i < (int) legal.size(); i++ )
+	vector<int> index;
+	index.push_back(0);
+	for( int i = 1; i < (int) legal.size(); i++ )
 		if ( player == -1 && ActionValue(legal[i], player, c) > key ) {
 			index.clear();
 			key = ActionValue(legal[i], player, c);
@@ -65,7 +71,7 @@ TreeStruct Node::Select( double c, vector<int> legal, int player, int rotater ) 
 		}
 	TreeStruct data;
 	int selected = index[rand() % index.size()];
-	data.node = action[ selected ].node;
+	data.node = action[ selected ].next;
 
 	if( id == boardsize*boardsize ) data.action = Coor(-1,-1);
 	else {
@@ -92,9 +98,16 @@ TreeStruct Node::Select( double c, vector<int> legal, int player, int rotater ) 
 	return data;
 }
 
+bool Node::addConnect( Node* next, Coor move ) {
+	if( action[ToOneD(move)].next != NULL )
+		return false;
+	action[ToOneD(move)].next = next;
+	return true;
+}
+
 //Private functions
-double Node::ActionValue( int index, int player, double c ) {
-	return action[i].value + c*player*(-1)*sqrt*( log((double) visit) / action[i].visit ); //since black is -1
+double Node::ActionValue( int i, int player, double c ) {
+	return action[i].value + -c*player*sqrt( log((double) visit) / action[i].visit ); //since black is -1
 }
 
 void Node::Rotate( int rotateid, int** newboard ) {
@@ -187,4 +200,9 @@ void Node::HalfQuarter( int** newboard ) {
 void Node::ThreeQuarter( int** newboard ) {
 	RisingDiagonal(newboard);
 	Vertical(newboard);
+}
+
+int Node::ToOneD(Coor move) {
+	if(move.x == -1 || move.y == -1) return boardsize*boardsize;
+	return move.x*boardsize+move.y;
 }

@@ -10,6 +10,8 @@
 
 #include "main.h"
 #include "game.h"
+#include "node.h"
+#include "uct.h"
 #include "agent.h"
 
 using namespace std;
@@ -47,13 +49,13 @@ int main (int argc, char* argv[]) {
 	cout<<"\tPlayer 2:\t"<<(c2 ? "Agent" : "Human")<<endl;
 	
 	Game* game = new Game(boardsize);
-	UCT* gametree = new UCT();
+	UCT* gametree = new UCT(boardsize);
 	Agent* p1 = new Agent(game, gametree);
+	Agent* p2 = new Agent(game, gametree);
 	
 	p1->setType(1);
 	p2->setType(1);
 	
-	Agent* p2 = new Agent(game);
 	
 	cout<<"Starting Game...\n";
 	//create game

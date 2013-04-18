@@ -14,6 +14,7 @@
 using namespace std;
 
 class Agent {
+	
 	Game* game;
 	UCT* UCTtree;
 	bool debug;
@@ -27,7 +28,13 @@ class Agent {
 	
 	//types of moves
 	int Random();
-	int UCTSearch();
+	Coor UCTSearch ();
+	void Simulate( );
+	vector<TreeStruct> SimTree(Node* prev);
+	int Default();
+	void BackUp( vector<TreeStruct> preferred, int win );
+	Coor SelectMove( );
+	vector<int> ConvertOneD();
 
 	public:
 		Agent( Game*, UCT* );
