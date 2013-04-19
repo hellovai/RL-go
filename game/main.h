@@ -20,10 +20,15 @@ typedef struct coorStruct Coor;
 typedef struct struct1 Item;
 typedef struct grpStuff grpStruct;
 typedef struct act Actiondata;
+class UCT;
+class Node;
+class Game;
+class Agent;
 
-struct coorStruct{
+struct coorStruct {
 	int x;
 	int y;
+	
 	coorStruct(int xInt, int yInt) : x(xInt), y(yInt) { };
 	coorStruct();
 };
@@ -40,8 +45,29 @@ struct grpStuff{
 	grpStuff(int xInt, int yInt) : numb(xInt), type(yInt) { }
 };
 
+struct treestruct{ 
+	Node* node;
+	Coor action;
+	treestruct() {
+		node = NULL;
+		action = Coor(-1,-1);
+	};
+	treestruct(Node* next, Coor arb) : node(next), action(arb) { };
+};
+
+struct act{
+	int visit;
+	double value;
+	Node* next;
+	act() {
+		visit = 0;
+		value = 0;
+		next = NULL;
+	}
+};
 
 Coor getHuman();
+Coor mapRotate(Coor, int);
 //=================================
 // end guard
 #endif

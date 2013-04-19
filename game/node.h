@@ -15,11 +15,11 @@ using namespace std;
 
 class Node {
 
-	int id;
 	int **board;
 	int boardsize;
 	int visit;
-	
+	bool debug;
+
 	Actiondata* action;
 	
 	bool Same(int**);
@@ -39,28 +39,16 @@ class Node {
 		Node(int, Item**, int );
 		int Id( ) { return id; };
 
+		int id;
 		void Visit();
 		void Action(int, int);
 		int Compare(Item** );
 		Node* Select(Coor );
 		treestruct SelectMove( double c, vector<int> legal, int player, int rotater );
 		bool addConnect( Node*, Coor );
-};
-
-struct treestruct{ 
-	Node* node;
-	Coor action;
-};
-
-struct act{
-	int visit;
-	double value;
-	Node* next;
-	act() {
-		visit = 0;
-		value = 0;
-		next = NULL;
-	}
+		void setDebug(bool x ) {debug = x;};
+		void Print();
+		string GetCharPlayer(int );
 };
 
 //=================================

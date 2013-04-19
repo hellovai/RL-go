@@ -32,6 +32,7 @@ class Game {
 	
 	int grpCtr;
 	int grpCheck;
+	bool debug;
 	
 	vector<grpStruct> grpVector;
 
@@ -48,7 +49,6 @@ class Game {
 	bool isOk( Coor );
 	bool isOk( int , int );
 	Coor relativepos(Coor, int );
-	void printPrev();
 	void printFuture();
 	void printGroup();
 public:
@@ -60,6 +60,7 @@ public:
 	Item **board() {return currboard;};
 	Item **previous() { return prevboard; };
 	int Boardsize() { return BOARDSIZE; };
+	void setDebug( bool x ) {debug = x;};
 	
 	bool ValidMove(Coor );					// checks if the coordinate is a valid move
 	void Move(Coor );							// makes a move if valid
@@ -67,6 +68,7 @@ public:
 	void Score();							// uses area()
 	int BlackWin();
 	vector<Coor> History() { return moveList; };
+	void printPrev();
 };
 
 //=================================

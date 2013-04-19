@@ -27,6 +27,7 @@ void Game::Reset() {
 	black_Count = 181;
 	white_Count = 180;
     moveList.clear();
+    debug = false;
 	
     if(BOARDSIZE == 9) {
         black_Count -= 140;
@@ -55,7 +56,7 @@ void Game::Reset() {
             futureboard[i][j] = empty;
 		}
 	}
-	cout<<"Board is ready...\n";
+	if(debug) cout<<"Board is ready...\n";
 }
 
 void Game::Print() {

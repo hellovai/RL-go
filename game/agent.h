@@ -27,14 +27,16 @@ class Agent {
 	int type;
 	
 	//types of moves
-	int Random();
+	Coor Random();
 	Coor UCTSearch ();
-	void Simulate( );
+	Node* Simulate( );
 	vector<TreeStruct> SimTree(Node* prev);
 	int Default();
 	void BackUp( vector<TreeStruct> preferred, int win );
-	Coor SelectMove( );
+	Coor SelectMove(Node* );
 	vector<int> ConvertOneD();
+	int ConvertOneD(Coor );
+	void GetValidMoves();
 
 	public:
 		Agent( Game*, UCT* );
