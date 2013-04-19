@@ -50,15 +50,40 @@ int Node::Compare(Item** toCompare) {
 			newboard[i][j] = toCompare[i][j].val;
 		}
 	}
+
+		Print();
+		
+		for(int j=0;j<boardsize;j++)
+			cout << ' ' << (char) (j+65);
+			cout<<endl;
+		for(int i=0;i<boardsize;i++)
+		{
+			cout<<i<<'\t';
+			for(int j=0;j<boardsize;j++)
+				cout << '|' << GetCharPlayer(newboard[i][j]);	
+				cout << '|' << endl;
+		}
+
 	int rotater = 8;
-	Rotate(rotater, newboard);
 	while(!Same(newboard) && rotater > 1) {
 		Rotate(-rotater, newboard);
 		Rotate(--rotater, newboard);
 	}
 	if(!Same(newboard)) {
+		Rotate(-rotater, newboard);
 		rotater = 8;
+		for(int j=0;j<boardsize;j++)
+			cout << ' ' << (char) (j+65);
+			cout<<endl;
+		for(int i=0;i<boardsize;i++)
+		{
+			cout<<i<<'\t';
+			for(int j=0;j<boardsize;j++)
+				cout << '|' << GetCharPlayer(newboard[i][j]);	
+				cout << '|' << endl;
+		}
 		cout<<"This should not happen!"<<endl;
+		cin.ignore();
 	}
 	return rotater;
 }

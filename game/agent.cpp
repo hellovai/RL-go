@@ -61,7 +61,7 @@ Coor Agent::UCTSearch () {
 	Node* curr;
 	int i = 0;
 	bool nope = true;
-	cout<<"Staring While Loop"<<endl;
+	if(debug) cout<<"Staring While Loop"<<endl;
 	while(i < level && nope) {
 		curr = Simulate();
 		if (debug) cout<<"\t\033[1;31msimulate for Times "<<i++<<"\033[0m"<<endl;
@@ -71,7 +71,7 @@ Coor Agent::UCTSearch () {
 			nope = false;
 		}
 	}
-	cout<<"Ending While Loop"<<endl;
+	if(debug) cout<<"Ending While Loop"<<endl;
 	curr->Print();
 	return SelectMove(curr);
 }
@@ -133,7 +133,8 @@ vector<TreeStruct> Agent::SimTree(Node* prev) {
 		}
 		if(debug) cout <<"\t no new node is added"<<endl;
 		GetValidMoves();
-		data = curr->SelectMove( c, ConvertOneD(), game->Turn(), curr->Compare(game->board()) );
+		int rotater = curr->Compare(game->board());
+		data = curr->SelectMove( c, ConvertOneD(), game->Turn(), rotater );
 		game->ValidMove(data.action);
 		game->Move(data.action);
 		prev = curr;

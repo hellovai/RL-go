@@ -27,6 +27,7 @@ int main (int argc, char* argv[]) {
 	bool debug = false;
 	bool dolog = false;
 	bool pause = false;
+	int gameCounter = 1;
 
 	//read arguments and define variable based on them
 	for(int i=1; i<argc; i++) {
@@ -43,7 +44,9 @@ int main (int argc, char* argv[]) {
 			debug = true;
 		} else if (temp.compare("-p") == 0) {
 			pause = true;
-		} else
+		} else if (temp.compare("-g") == 0) {
+			gameCounter = 10;
+		}  else
 			usage_err(temp);
 	}
 
@@ -63,44 +66,44 @@ int main (int argc, char* argv[]) {
 	
 	p1->setType(1);
 	p2->setType(1);
-	int counter = 0;
-	
-	cout<<"Starting Game...\n";
-	//create game
-	while(!game->Status()) {
-		if(debug || !(game->Turn() == -1 ? c1 : c2 ) || pause) game->Print();
-		//if(debug || pause) cin.ignore();
-		//play game
-		Coor move(-1,-1);
+	for(int g = 0; g<gameCounter; g++ ) {
+		int counter = 0;
 		
-		// alternate moves once agent is ready
-		int checker = 0;
-		do {
-			if(checker == 1) {
-				cout<<"Returned invalid move "<<game->Turn()<<endl;
-				for(int i=0; i<(int) game->History().size(); i++)
-					cout<<game->History()[i].x<<","<<game->History()[i].y<<endl;
-				game->printPrev();
-				game->Print();
-				exit(0);
-			}
-			if(game->Turn() == -1)
-				if(c1) move = p1->Move();
-				else move = getHuman();
-			else
-				if(c2) move = p2->Move();
-				else move = getHuman();
-			if(debug) cout<<"While Loop: "<<move.x<<","<<move.y<<endl;
-			checker ++;
-		} while(!game->ValidMove(move));
+		cout<<"Starting Game...\n";
+		//create game
+		while(!game->Status()) {
+			if(pause || debug || !(game->Turn() == -1 ? c1 : c2 )) game->Print();
+			//if(debug || pause) cin.ignore();
+			//play game
+			Coor move(-1,-1);
+			
+			// alternate moves once agent is ready
+			int checker = 0;
+			do {
+				if(checker == 1) {
+					cout<<"Returned invalid move "<<game->Turn()<<endl;
+					for(int i=0; i<(int) game->History().size(); i++)
+						cout<<game->History()[i].x<<","<<game->History()[i].y<<endl;
+					game->printPrev();
+					game->Print();
+					exit(0);
+				}
+				if(game->Turn() == -1)
+					if(c1) move = p1->Move();
+					else move = getHuman();
+				else
+					if(c2) move = p2->Move();
+					else move = getHuman();
+				if(debug) cout<<"While Loop: "<<move.x<<","<<move.y<<endl;
+				checker ++;
+			} while(!game->ValidMove(move));
 
-		game->Move(move);
-		cout<<"Move "<<++counter<<endl;
+			game->Move(move);
+			cout<<"Move "<<++counter<<endl;
+		}
+		//display result
+		game->Score();
 	}
-
-	//display result
-	game->Score();
-	
 	return 0;
 }
 

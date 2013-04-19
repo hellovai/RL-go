@@ -28,6 +28,9 @@ UCT::UCT(int bsize, bool dbg) {
 			currboard[i][j] = empty;
 	}
 	root = new Node(size++, currboard, boardsize);
+	Node *next = new Node(size++, currboard, boardsize);
+	next->addConnect(root, Coor(-1,-1));
+	root->addConnect(next, Coor(-1,-1));
 	root->setDebug(debug);
 	if(debug) cout<<"Finished Init tree"<<endl;
 }
@@ -38,7 +41,10 @@ Node* UCT::insert(Node* prev, Item** currBoard, Coor move) {
 //	int rotate = prev->Compare(prevBoard);
 	if(debug) cout<<"Inserting Node to "<<prev->id<<"\t"<<move.x<<", "<<move.y<<endl<<"\tCurrent size: "<<size<<endl;
 	Node *next = new Node(size++, currBoard, boardsize);
+	Node *nextpt2 = new Node(size++, currBoard, boardsize);
 	next->setDebug(debug);
+	next->addConnect(nextpt2, Coor(-1,-1));
+	nextpt2->addConnect(next, Coor(-1,-1));
 	if(!prev->addConnect(next, move)) {
 		cout<<"\n\nInserting with  tree did not connect"<<endl;
 		//dump data
