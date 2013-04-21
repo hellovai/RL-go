@@ -19,7 +19,7 @@ class Agent {
 	UCT* UCTtree;
 	bool debug;
 	vector<Coor> moveData;
-	
+	vector<Coor> priority;
 	//difficulty of agent
 	int level;
 

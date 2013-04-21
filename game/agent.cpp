@@ -62,17 +62,14 @@ Coor Agent::UCTSearch () {
 	int i = 0;
 	bool nope = true;
 	if(debug) cout<<"Staring While Loop"<<endl;
-	while(i < level && nope) {
+	while(i < level ) {
 		curr = Simulate();
-		if (debug) cout<<"\t\033[1;31msimulate for Times "<<i++<<"\033[0m"<<endl;
+		if (debug) cout<<"\t\033[1;31msimulate for Times "<<i<<"\033[0m"<<endl;
 		//if(debug) cin.ignore();
-		if( i == level ) {
-			cout<<"We are done!"<<endl;
-			nope = false;
-		}
+		i++;
 	}
 	if(debug) cout<<"Ending While Loop"<<endl;
-	curr->Print();
+	if(debug) curr->Print();
 	return SelectMove(curr);
 }
 
@@ -87,6 +84,7 @@ Node* Agent::Simulate( ) {
 	game->Reset();
 	Node* start = UCTtree->Root();
 	Node* relaventpos = start;
+	priority.clear();
 	for(int j=0; j<(int) moveHistory.size(); j++) {
 		if( start == NULL ) {
 			cout<<"\tStart was null"<<endl;
@@ -97,7 +95,14 @@ Node* Agent::Simulate( ) {
 		int rotater = start->Compare(game->board());
 		game->ValidMove(moveHistory[j]);
 		game->Move(moveHistory[j]);
-		start = start->Select(mapRotate(moveHistory[j], rotater));
+		relaventpos = start->Select(mapRotate(moveHistory[j], rotater));
+		if(relaventpos != NULL)
+			start = relaventpos;
+		else {
+			if(debug) cout<<"No move history exists!"<<endl;
+			for( ; j < (int) moveHistory.size(); j++)
+				priority.push_back(moveHistory[j]);
+		}
 	}
 	relaventpos = start;
 	if(start == NULL) {
@@ -134,11 +139,27 @@ vector<TreeStruct> Agent::SimTree(Node* prev) {
 		if(debug) cout <<"\t no new node is added"<<endl;
 		GetValidMoves();
 		int rotater = curr->Compare(game->board());
-		data = curr->SelectMove( c, ConvertOneD(), game->Turn(), rotater );
+		if(priority.size() == 0) {
+			data = curr->SelectMove( c, ConvertOneD(), game->Turn(), rotater );
+		} else {
+			data.node = NULL;
+			data.action = priority[0];
+			priority.erase(priority.begin());
+		}
 		game->ValidMove(data.action);
 		game->Move(data.action);
 		prev = curr;
 		curr = data.node;
+		if(curr == NULL) {
+			curr = UCTtree->Search(game->board());
+			if(curr != NULL ) {
+				prev->addConnect(curr, data.action);
+				cout<<"Found connection!"<<endl;
+				prev->Print();
+				curr->Print();
+				cin.ignore();
+			}
+		}
 		if(debug)
 			cout<<"\tWill Back up node "<<(prev == NULL ? -100 : prev->id)<<" action "<<data.action.x<<", "<<data.action.y<<endl;;
 		reldata.push_back(TreeStruct(prev, data.action));
@@ -189,13 +210,6 @@ Coor Agent::SelectMove(Node* curr) {
 	//search tree to find node
 	GetValidMoves();
 	int rotater = curr->Compare(game->board());
-	cout<<"Node"<<endl;
-	curr->Print();
-	cout<<"Current"<<endl;
-	game->Print();
-	cout<<"previous"<<endl;
-	game->printPrev();
-	cout<<"Rotater: "<<rotater<<endl;
 	return curr->SelectMove( 0.0, ConvertOneD(), game->Turn(), rotater).action;
 }
 

@@ -40,6 +40,10 @@ Node* Node::Select( Coor move ) {
 	return action[ToOneD(move)].next;
 }
 
+Node* Node::Select( int move ) {
+	return action[move].next;
+}
+
 int Node::Compare(Item** toCompare) {
 	if(debug) cout<<"Comparing with Node id "<<id<<endl;
 	int** newboard = new int*[boardsize];
@@ -56,20 +60,7 @@ int Node::Compare(Item** toCompare) {
 		Rotate(--rotater, newboard);
 	}
 	if(!Same(newboard)) {
-		Rotate(-rotater, newboard);
-		rotater = 8;
-		for(int j=0;j<boardsize;j++)
-			cout << ' ' << (char) (j+65);
-			cout<<endl;
-		for(int i=0;i<boardsize;i++)
-		{
-			cout<<i<<'\t';
-			for(int j=0;j<boardsize;j++)
-				cout << '|' << GetCharPlayer(newboard[i][j]);	
-				cout << '|' << endl;
-		}
-		cout<<"This should not happen!"<<endl;
-		cin.ignore();
+		return -1;
 	}
 	return rotater;
 }

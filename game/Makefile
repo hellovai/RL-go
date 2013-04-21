@@ -1,6 +1,6 @@
 CC=g++
-CFLAGS=-c -W
-LDFLAGS=
+CFLAGS=-c -W -pg
+LDFLAGS=-pg
 SOURCES=main.cpp game.cpp node.cpp uct.cpp agent.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=go
@@ -13,5 +13,4 @@ $(EXECUTABLE): $(OBJECTS)
 	mv $(EXECUTABLE) ../
 
 .cpp.o:
-	clear
 	$(CC) $(CFLAGS) $< -o $@

@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <queue>
 
 #include "main.h"
 #include "node.h"
@@ -54,6 +55,28 @@ Node* UCT::insert(Node* prev, Item** currBoard, Coor move) {
 	}
 	if(debug) cout<<" New size: "<<size<<endl;
 	return next;
+}
+
+Node* UCT::Search(Item** board) {
+	queue<Node *> searchlist;
+	searchlist.push(root);
+	vector<int> idlist (1, root->id);
+	while(!searchlist.empty()) {
+		Node* curr = searchlist.front();
+		if(curr->Compare(board) != -1)
+			return curr;
+		for( int i = 0; i < 82; i++ ) {
+			Node* next = curr->Select(i);
+			if(next != NULL) {
+				if( find(idlist.begin(), idlist.end(), next->id) != idlist.end() ) {
+					searchlist.push(next);
+					idlist.push_back(next->id);
+				}
+			}
+		}
+		searchlist.pop();
+	}
+	return NULL;
 }
 
 //Private Functions

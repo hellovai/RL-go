@@ -44,6 +44,7 @@ class Node {
 		void Action(int, int);
 		int Compare(Item** );
 		Node* Select(Coor );
+		Node* Select(int );
 		treestruct SelectMove( double c, vector<int> legal, int player, int rotater );
 		bool addConnect( Node*, Coor );
 		void setDebug(bool x ) {debug = x;};

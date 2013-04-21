@@ -45,7 +45,7 @@ int main (int argc, char* argv[]) {
 		} else if (temp.compare("-p") == 0) {
 			pause = true;
 		} else if (temp.compare("-g") == 0) {
-			gameCounter = 10;
+			gameCounter = 100;
 		}  else
 			usage_err(temp);
 	}
@@ -65,14 +65,17 @@ int main (int argc, char* argv[]) {
 	p2->setDebug(debug);
 	
 	p1->setType(1);
-	p2->setType(1);
+	p2->setType(0);
+	int blackwin = 0, whitewin = 0;
 	for(int g = 0; g<gameCounter; g++ ) {
+		game->Reset();
 		int counter = 0;
 		
-		cout<<"Starting Game...\n";
+		cout<<"Starting Game "<<g<<"...\n";
 		//create game
 		while(!game->Status()) {
 			if(pause || debug || !(game->Turn() == -1 ? c1 : c2 )) game->Print();
+			if(pause || debug || !(game->Turn() == -1 ? c1 : c2 )) cout<<"Move "<<++counter<<endl;
 			//if(debug || pause) cin.ignore();
 			//play game
 			Coor move(-1,-1);
@@ -99,11 +102,21 @@ int main (int argc, char* argv[]) {
 			} while(!game->ValidMove(move));
 
 			game->Move(move);
-			cout<<"Move "<<++counter<<endl;
 		}
 		//display result
 		game->Score();
+		switch(game->BlackWin()) {
+			case 1:
+				blackwin++;
+				break;
+			case -1:
+				whitewin++;
+				break;
+		}
 	}
+	cout<<"Tree size: "<<gametree->Size()<<endl;
+	cout<<"Black Win: "<<blackwin<<endl;
+	cout<<"White Win: "<<whitewin<<endl;
 	return 0;
 }
 
