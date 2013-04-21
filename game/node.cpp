@@ -22,7 +22,6 @@ Node::Node(int itemid, Item** currentBoard, int currsize) {
 			board[i][j] = currentBoard[i][j].val;
 	}
 	action = new Actiondata[boardsize*boardsize+1];
-	action[boardsize*boardsize].next = this;
 	if(debug) cout<<"Initialized Node with id "<<id<<endl;
 }
 
@@ -50,19 +49,6 @@ int Node::Compare(Item** toCompare) {
 			newboard[i][j] = toCompare[i][j].val;
 		}
 	}
-
-		Print();
-		
-		for(int j=0;j<boardsize;j++)
-			cout << ' ' << (char) (j+65);
-			cout<<endl;
-		for(int i=0;i<boardsize;i++)
-		{
-			cout<<i<<'\t';
-			for(int j=0;j<boardsize;j++)
-				cout << '|' << GetCharPlayer(newboard[i][j]);	
-				cout << '|' << endl;
-		}
 
 	int rotater = 8;
 	while(!Same(newboard) && rotater > 1) {
