@@ -27,7 +27,10 @@ int main (int argc, char* argv[]) {
 	bool debug = false;
 	bool dolog = false;
 	bool pause = false;
+	bool selfplay = true;
 	int gameCounter = 1;
+	int p1level = 1, p2level = 1;
+	int p1type = 0, p2type = 0;
 
 	//read arguments and define variable based on them
 	for(int i=1; i<argc; i++) {
@@ -36,8 +39,44 @@ int main (int argc, char* argv[]) {
 			boardsize = 19;
 		} else if (temp.compare("-c1") == 0) {
 			c1 = true;
+			bool check = true;
+			while(check && ++i < argc) {
+				temp = argv[i];
+				if ( temp.compare("-level") == 0 ) {
+					if(++i<argc)
+						p1level = atoi(argv[i]);
+					else
+						usage_err(temp);
+				} else if ( temp.compare("-type") == 0 ) {
+					if(++i<argc)
+						p1type = atoi(argv[i]);
+					else
+						usage_err(temp);
+				} else {
+					--i;
+					check = false;
+				}
+			}
 		} else if (temp.compare("-c2") == 0) {
 			c2 = true;
+			bool check = true;
+			while(check && ++i < argc) {
+				temp = argv[i];
+				if ( temp.compare("-level") == 0 ) {
+					if(++i<argc)
+						p2level = atoi(argv[i]);
+					else
+						usage_err(temp);
+				} else if ( temp.compare("-type") == 0 ) {
+					if(++i<argc)
+						p2type = atoi(argv[i]);
+					else
+						usage_err(temp);
+				} else {
+					--i;
+					check = false;
+				}
+			}
 		} else if (temp.compare("-log") == 0) {
 			dolog = true;
 		} else if (temp.compare("-debug") == 0) {
@@ -45,27 +84,52 @@ int main (int argc, char* argv[]) {
 		} else if (temp.compare("-p") == 0) {
 			pause = true;
 		} else if (temp.compare("-g") == 0) {
-			gameCounter = 100;
-		}  else
+			if(++i<argc)
+				gameCounter = atoi(argv[i]);
+			else
+				usage_err(temp);
+		} else if (temp.compare("-selfoff") == 0) {
+			selfplay = false;
+		} else if (temp.compare("-h") == 0 ) {
+			usage_err("");
+		} else
 			usage_err(temp);
 	}
 
 	// print starting config
 	cout<<"Configuration: "<<endl;
-	cout<<"\tBoardsize:\t"<<boardsize<<endl;
+	cout<<"\tBoardsize:\t"<<boardsize<<endl<<endl;
 	cout<<"\tPlayer 1:\t"<<(c1 ? "Agent" : "Human")<<endl;
-	cout<<"\tPlayer 2:\t"<<(c2 ? "Agent" : "Human")<<endl;
+	if(c1) {
+		cout<<"\tType:\t\t"<<(p1type == 1 ? "UCT" : "Random")<<endl;
+		if(p1type == 1) cout<<"\tLevel:\t\t"<<p1level<<endl;
+	}
+	cout<<"\n\tPlayer 2:\t"<<(c2 ? "Agent" : "Human")<<endl;
+	if(c2) {
+		cout<<"\tType:\t\t"<<(p2type == 1 ? "UCT" : "Random")<<endl;
+		if(p2type == 1) cout<<"\tLevel:\t\t"<<p2level<<endl;
+	}
+	cout<<endl;
 	tboardsize = boardsize;
 	Game* game = new Game(boardsize);
 	UCT* gametree = new UCT(boardsize, debug);
 	Agent* p1 = new Agent(game, gametree);
-	Agent* p2 = new Agent(game, gametree);
+	Agent* p2;
+	if(selfplay) 
+		p2 = new Agent(game, gametree);
+	else {
+		UCT* gametree2 = new UCT(boardsize, debug);
+		p2 = new Agent(game, gametree2);
+	}
 	game->setDebug(false);
 	p1->setDebug(debug);
 	p2->setDebug(debug);
 	
-	p1->setType(1);
-	p2->setType(0);
+	p1->setType(p1type);
+	p2->setType(p2type);
+	p1->setLevel(p1level);
+	p2->setLevel(p2level);
+
 	int blackwin = 0, whitewin = 0;
 	for(int g = 0; g<gameCounter; g++ ) {
 		game->Reset();
@@ -121,8 +185,17 @@ int main (int argc, char* argv[]) {
 }
 
 void usage_err(string var) {
-	cout<<"Improper usage of '"<<var<<"'"<<endl;
-	cout<<"Usage: ./go "<<endl;
+	if(var.length() > 0) cout<<"Improper usage of '"<<var<<"'"<<endl;
+	cout<<"Usage: ./go [-c1 [-type ...] [-level ...]] [-c2 [-type ...] [-level ...]] [-g number_of_games] [-big] [-selfoff] [-p] [-debug] "<<endl;
+	cout<<"\t-big\t\t-- Boardsize set to 19"<<endl;
+	cout<<"\t-c1\t\t-- Enable Agent Player 1"<<endl;
+	cout<<"\t-c2\t\t-- Enable Agent Player 2"<<endl;
+	cout<<"\t-debug\t\t-- Show details of learning"<<endl;
+	cout<<"\t-h\t\t-- Displays this menu"<<endl;
+	cout<<"\t-level\t\t-- Depth of tree to search"<<endl;
+	cout<<"\t-p\t\t-- Display board after every turn"<<endl;
+	cout<<"\t-selfoff\t-- Agents use two different trees"<<endl;
+	cout<<"\t-type\t\t-- 0 Random\n\t\t\t-- 1 UCT Vanilla"<<endl;
 	exit(0);
 }
 

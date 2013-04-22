@@ -43,6 +43,7 @@ class Agent {
 		void Change_game ( Game* curr_game ) { game = curr_game; };
 		void setDebug( bool debg ) { debug = debg; };
 		void setType( int ty ) { type = ty; };
+		void setLevel( int lev ) { level = lev; };
 		
 		Coor Move( );
 };
