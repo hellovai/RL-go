@@ -28,6 +28,7 @@ int main (int argc, char* argv[]) {
 	bool dolog = false;
 	bool pause = false;
 	bool selfplay = true;
+	bool score = false;
 	int gameCounter = 1;
 	int p1level = 1, p2level = 1;
 	int p1type = 0, p2type = 0;
@@ -35,8 +36,11 @@ int main (int argc, char* argv[]) {
 	//read arguments and define variable based on them
 	for(int i=1; i<argc; i++) {
 		string temp = argv[i];
-		if(temp.compare("-big") == 0) {
-			boardsize = 19;
+		if(temp.compare("-board") == 0) {
+			if(++i < argc)
+				boardsize = atoi(argv[i]);
+			else
+				usage_err(temp);
 		} else if (temp.compare("-c1") == 0) {
 			c1 = true;
 			bool check = true;
@@ -90,6 +94,12 @@ int main (int argc, char* argv[]) {
 				usage_err(temp);
 		} else if (temp.compare("-selfoff") == 0) {
 			selfplay = false;
+		} else if (temp.compare("-score") == 0 ) {
+			score = true;
+		} else if (temp.compare("-level") == 0 ) {
+			usage_err(temp);
+		} else if (temp.compare("-type") == 0 ) {
+			usage_err(temp);
 		} else if (temp.compare("-h") == 0 ) {
 			usage_err("");
 		} else
@@ -113,12 +123,12 @@ int main (int argc, char* argv[]) {
 	tboardsize = boardsize;
 	Game* game = new Game(boardsize);
 	UCT* gametree = new UCT(boardsize, debug);
+	UCT* gametree2 = new UCT(boardsize, debug);
 	Agent* p1 = new Agent(game, gametree);
 	Agent* p2;
 	if(selfplay) 
 		p2 = new Agent(game, gametree);
 	else {
-		UCT* gametree2 = new UCT(boardsize, debug);
 		p2 = new Agent(game, gametree2);
 	}
 	game->setDebug(false);
@@ -147,14 +157,18 @@ int main (int argc, char* argv[]) {
 			// alternate moves once agent is ready
 			int checker = 0;
 			do {
-				if(checker == 1) {
-					cout<<"Returned invalid move "<<game->Turn()<<endl;
-					for(int i=0; i<(int) game->History().size(); i++)
-						cout<<game->History()[i].x<<","<<game->History()[i].y<<endl;
-					game->printPrev();
-					game->Print();
-					exit(0);
-				}
+				if(checker > 0)
+					if(game->Turn() == -1 ? c1 : c2 ) 
+					{
+						cout<<"Returned invalid move "<<game->Turn()<<endl;
+						for(int i=0; i<(int) game->History().size(); i++)
+							cout<<game->History()[i].x<<","<<game->History()[i].y<<endl;
+						game->printPrev();
+						game->Print();
+						exit(0);
+					} else {
+						cout<<"Invalid Move!"<<endl;
+					}
 				if(game->Turn() == -1)
 					if(c1) move = p1->Move();
 					else move = getHuman();
@@ -168,7 +182,7 @@ int main (int argc, char* argv[]) {
 			game->Move(move);
 		}
 		//display result
-		game->Score();
+		if(score) game->Score();
 		switch(game->BlackWin()) {
 			case 1:
 				blackwin++;
@@ -178,31 +192,44 @@ int main (int argc, char* argv[]) {
 				break;
 		}
 	}
+
+	if(selfplay) cout<<"White Tree size: "<<gametree2->Size()<<endl<<"Black ";
 	cout<<"Tree size: "<<gametree->Size()<<endl;
 	cout<<"Black Win: "<<blackwin<<endl;
 	cout<<"White Win: "<<whitewin<<endl;
+	cout<<"Ties: "<<gameCounter - blackwin - whitewin<<endl;
+	cout<<"Diffence: "<<abs(blackwin - whitewin)<<endl;
 	return 0;
 }
 
 void usage_err(string var) {
 	if(var.length() > 0) cout<<"Improper usage of '"<<var<<"'"<<endl;
-	cout<<"Usage: ./go [-c1 [-type ...] [-level ...]] [-c2 [-type ...] [-level ...]] [-g number_of_games] [-big] [-selfoff] [-p] [-debug] "<<endl;
-	cout<<"\t-big\t\t-- Boardsize set to 19"<<endl;
+	cout<<"Usage: ./go [-c1 [-type ...] [-level ...]] [-c2 [-type ...] [-level ...]] [-g number_of_games] [-board <size>] [-score] [-selfoff] [-p] [-debug] "<<endl;
+	cout<<"\t-board <int>\t-- Changes Boardsize"<<endl;
 	cout<<"\t-c1\t\t-- Enable Agent Player 1"<<endl;
 	cout<<"\t-c2\t\t-- Enable Agent Player 2"<<endl;
 	cout<<"\t-debug\t\t-- Show details of learning"<<endl;
 	cout<<"\t-h\t\t-- Displays this menu"<<endl;
-	cout<<"\t-level\t\t-- Depth of tree to search"<<endl;
+	cout<<"\t-level <int>\t-- Depth of tree to search"<<endl;
 	cout<<"\t-p\t\t-- Display board after every turn"<<endl;
 	cout<<"\t-selfoff\t-- Agents use two different trees"<<endl;
-	cout<<"\t-type\t\t-- 0 Random\n\t\t\t-- 1 UCT Vanilla"<<endl;
+	cout<<"\t-type <int>\t-- 0 Random\n\t\t\t-- 1 UCT Vanilla"<<endl;
 	exit(0);
 }
 
 Coor getHuman() {
 	Coor move(-1,-1);
-	cin>>move.x>>move.y;
-	cout<<"Move: "<<move.x<<" "<<move.y<<endl;
+	char x;
+	cin>>x;
+	if(x == 'P')
+		return move;
+	if(x == 'Q') {
+		cout<<"Exiting Game..."<<endl;
+		exit(0);
+	}
+	cin>>move.x;
+	move.y = (int) x - 'A';
+	//cout<<"Move: "<<move.x<<" "<<move.y<<endl;
 	return move;
 }
 

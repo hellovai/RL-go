@@ -5,6 +5,7 @@
 #include <string>
 #include <algorithm>
 #include <cmath>
+#include <queue>
 
 #include "main.h"
 #include "game.h"
@@ -24,15 +25,15 @@ void Game::Reset() {
 	my_status = false;
 	pass = false;
 	validpass = false;
-	black_Count = 181;
-	white_Count = 180;
+	black_Count = 999;
+	white_Count = 999;
     moveList.clear();
     debug = false;
 	
-    if(BOARDSIZE == 9) {
-        black_Count -= 140;
-        white_Count -= 140;
-    }
+    // if(BOARDSIZE == 9) {
+        // black_Count -= 140;
+        // white_Count -= 140;
+    // }
 
     grpCtr = 0;
 	grpCheck = BOARDSIZE*BOARDSIZE;
@@ -135,7 +136,7 @@ bool Game::ValidMove ( Coor move ) {
 
 	if(!isOk(move))
         return false;
-    //cout<<"Move is in range"<<endl;
+    if(debug) cout<<"Move is in range"<<endl;
 
     for(int i=0; i<BOARDSIZE; i++)
 		for(int j=0; j<BOARDSIZE; j++) {
@@ -147,18 +148,18 @@ bool Game::ValidMove ( Coor move ) {
 	if( futureboard[move.x][move.y].val != 0 )
 		return false;
 	
-    //cout<<"Move not played"<<endl;
+    if(debug) cout<<"Move not played"<<endl;
 
     futureboard[move.x][move.y].val = current_player;
     
     eat(move);
 
-    //cout<<"Ate possible peices"<<endl;
+    if(debug) cout<<"Ate possible peices"<<endl;
 
 	if(!liberty(move))
 		return false;
 	
-    //cout<<"Has liberty"<<endl;
+    if(debug) cout<<"Has liberty"<<endl;
 
 	//at this point liberty is kept when this happens
 	for(int i=0; i<BOARDSIZE; i++)
@@ -181,11 +182,14 @@ void Game::Move(Coor move) {
             black_Count--;
         else
             white_Count--;
-	}
+	} else {
+        if(debug) cout<<(current_player == -1 ? "Black" : "White")<<" Passed!"<<endl;
+    }
         moveList.push_back(move);
 		validpass = false;
         current_player *= -1;
 		moves++;
+        if(debug) cout<<"Turn of: "<<(current_player == -1 ? "Black" : "White")<<endl;
 		
 //        if( black_Count + white_Count <= 0 )
 //            my_status = true;
@@ -205,52 +209,58 @@ string Game::GetCharPlayer(int num) {
 
 //finds liberties for a location	
 bool Game::liberty(Coor position ) {
-    if (futureboard[position.x][position.y].val == 0)
-        return true;
-    for( int i =0; i< 4; i++) {
-        Coor nextposition = relativepos(position, i);
-        if(!isOk(nextposition)) continue;
-        if(futureboard[nextposition.x][nextposition.y].val == 0)
-            return true;
-        if (futureboard[nextposition.x][nextposition.y].val == futureboard[position.x][position.y].val && !futureboard[nextposition.x][nextposition.y].visit) {
-            futureboard[nextposition.x][nextposition.y].visit = true;
-            if (liberty(nextposition))
-            {
-                futureboard[nextposition.x][nextposition.y].visit = false;
-                return true;
-            }
-            futureboard[nextposition.x][nextposition.y].visit = false;
+    queue<Coor> searchlist;
+    searchlist.push(position);
+    bool set = false;
+    while(!searchlist.empty() && !set) {
+        Coor curr = searchlist.front();
+        if( futureboard[curr.x][curr.y].val == 0)
+            set=true;
+        for( int i = 0; i < 4; i++ ) {
+            Coor nextposition = relativepos(curr, i);
+            if(isOk(nextposition))
+                if(!futureboard[nextposition.x][nextposition.y].visit && futureboard[nextposition.x][nextposition.y].val != -1*futureboard[curr.x][curr.y].val) {
+                    futureboard[nextposition.x][nextposition.y].visit = true;
+                    searchlist.push(nextposition);
+                }
         }
+        searchlist.pop();
     }
-    
-    return false;
+    for(int i = 0; i < BOARDSIZE; i++ )
+        for(int j = 0; j < BOARDSIZE; j++ )
+            futureboard[i][j].visit = false;
+
+    return set;
 }
 
 //eats everything with the currect move. Corr is the coordinate of current move.
 void Game::eat(Coor position) {
     for( int i =0; i< 4; i++) {
         Coor nextposition = relativepos(position, i);
-        if(!isOk(nextposition)) continue;
-        if (futureboard[nextposition.x][nextposition.y].val == -1*futureboard[position.x][position.y].val && !liberty(nextposition))
-            subeat(nextposition);
+        if(isOk(nextposition))
+            if (futureboard[nextposition.x][nextposition.y].val == -1*futureboard[position.x][position.y].val && !liberty(nextposition))
+                subeat(nextposition);
     }
     return;
 }
 
-void Game::subeat(Coor position) {  
-    futureboard[position.x][position.y].visit = true;
-    for( int i =0; i< 4; i++) {
-        Coor nextposition = relativepos(position, i);
-        if(!isOk(nextposition)) continue;
-        if (!futureboard[nextposition.x][nextposition.y].visit && futureboard[nextposition.x][nextposition.y].val == futureboard[position.x][position.y].val)
-        {
-            subeat(nextposition);
-            futureboard[nextposition.x][nextposition.y].visit = false;
+void Game::subeat(Coor position) {
+    queue<Coor> searchlist;
+    searchlist.push(position);
+    while(!searchlist.empty()) {
+        Coor curr = searchlist.front();
+        for( int i = 0; i < 4; i++ ) {
+            Coor nextposition = relativepos(curr, i);
+            if(isOk(nextposition))
+                if(!futureboard[nextposition.x][nextposition.y].visit && futureboard[nextposition.x][nextposition.y].val == futureboard[curr.x][curr.y].val) {
+                    futureboard[nextposition.x][nextposition.y].visit = true;
+                    searchlist.push(nextposition);
+                }
         }
+        futureboard[curr.x][curr.y].val = 0;
+        futureboard[curr.x][curr.y].visit = false;
+        searchlist.pop();
     }
-    futureboard[position.x][position.y].val = 0;
-    futureboard[position.x][position.y].visit = false;
-    return;
 }
 
 
@@ -331,7 +341,7 @@ Coor Game::relativepos(Coor move, int i) {
 
 void Game::Score( ) {
     area();
-    int black = 0, white = 0;
+    int black = 0, white = bonus();
     for (int i=0; i<BOARDSIZE; i++)
         for (int j = 0; j < BOARDSIZE; j++)
         {
@@ -346,14 +356,14 @@ void Game::Score( ) {
         }
     cout<<"Score: \n\tBlack: "<<black<<"\n\tWhite: "<<white<<endl;
 	cout<<"Number of Moves: "<<moves<<endl;
-	cout<<"Black: "<<black_Count<<endl;
-	cout<<"White: "<<white_Count<<endl;
+	cout<<"Black Used: "<<999-black_Count<<endl;
+	cout<<"White Used: "<<999-white_Count<<endl;
     printGroup();
 }
 
 int Game::BlackWin() {   
     area();
-    int black = 0, white = 0;
+    int black = 0, white = bonus();
     for (int i=0; i<BOARDSIZE; i++)
         for (int j = 0; j < BOARDSIZE; j++)
         {
@@ -367,6 +377,15 @@ int Game::BlackWin() {
             }
         }
     if( black > white ) return 1;       //win
-    else if( black == white ) return 0; //tie
+    else if( black == white ) return -1; //tie
     else return -1;                     //lose
+}
+
+int Game::bonus( ) {
+    if (BOARDSIZE < 10) return 0;
+    // else if (BOARDSIZE < 8) return 1;
+    // else if (BOARDSIZE < 10) return 1;
+    // else if (BOARDSIZE < 15) return 3; 
+    else if (BOARDSIZE < 17) return 6;
+    else return 8;
 }

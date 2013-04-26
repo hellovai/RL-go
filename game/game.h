@@ -42,7 +42,7 @@ class Game {
         void subeat(Coor );
 	void area();				//finds regions of both black and white
 		void getArea(Coor );
-
+	int bonus();
 	string GetCharPlayer(int ); 	//prints symbol
 	
 	//just to make life easier
@@ -61,6 +61,7 @@ public:
 	Item **previous() { return prevboard; };
 	int Boardsize() { return BOARDSIZE; };
 	void setDebug( bool x ) {debug = x;};
+	int Lenght() { return moves; };
 	
 	bool ValidMove(Coor );					// checks if the coordinate is a valid move
 	void Move(Coor );							// makes a move if valid

@@ -39,19 +39,22 @@ Coor Agent::Move( ) {
 
 //private types
 void Agent::GetValidMoves() {
-	//if(debug) cout<<"Starting GetValidMoves"<<endl;
+	if(debug) cout<<"Starting GetValidMoves"<<endl;
 	moveData.clear();
+	moveData.push_back(Coor(-1,-1));
 	Item **board = game->board();
 	for(int i=0; i<game->Boardsize(); i++)
-		for(int j=0; j<game->Boardsize(); j++)
+		for(int j=0; j<game->Boardsize(); j++) {
 			if(board[i][j].val == 0 && game->ValidMove(Coor(i,j)))
 				moveData.push_back(Coor(i,j));
+			//if(debug) cout<<"Checked: "<<i<<","<<j<<endl;
+		}
+	if(debug) cout<<"Finished searching board "<<moveData.size()<<endl;
 	//add passing
-	moveData.push_back(Coor(-1,-1));
 }
 
 Coor Agent::Random() {
-	//if(debug) cout<<"Starting Random"<<endl;
+	if(debug) cout<<"Starting Random"<<endl;
 	GetValidMoves();
 	return moveData[ rand() % moveData.size()];
 }
@@ -171,6 +174,10 @@ int Agent::Default() {
 	if (debug) cout <<"starting default"<<endl;
 	while(!game->Status()) {
 		Coor move(-1,-1);
+		if(game->Lenght() > 81) {
+			//game->setDebug(debug);
+			//game->Print();
+		}
 		switch(type) {
 			case 1:
 			default:
