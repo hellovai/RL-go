@@ -33,6 +33,7 @@ class Node {
 	void HalfQuarter(int **);
 	void ThreeQuarter(int **);
 	double ActionValue( int index, int player, double c );
+	double RaveActionValue( int index, int player, double c );
 	int ToOneD(Coor move); 
 
 	public:
@@ -42,10 +43,13 @@ class Node {
 		int id;
 		void Visit();
 		void Action(int, int);
+		void AMAFVisit(int);
+		void AMAFAction(int, int);
 		int Compare(Item** );
 		Node* Select(Coor );
 		Node* Select(int );
 		treestruct SelectMove( double c, vector<int> legal, int player, int rotater );
+		treestruct RaveSelectMove( double c, vector<int> legal, int player, int rotater );
 		bool addConnect( Node*, Coor );
 		void setDebug(bool x ) {debug = x;};
 		void Print();

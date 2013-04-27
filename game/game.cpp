@@ -341,43 +341,51 @@ Coor Game::relativepos(Coor move, int i) {
 
 void Game::Score( ) {
     area();
-    int black = 0, white = bonus();
+    int black = 0, white = bonus(), boardblack = 0, boardwhite = 0;
     for (int i=0; i<BOARDSIZE; i++)
         for (int j = 0; j < BOARDSIZE; j++)
         {
             Item curr = futureboard[i][j];
-            if(curr.val == -1) black++;
-            else if(curr.val == 1) white++;
+            if(curr.val == -1) boardblack++;
+            else if(curr.val == 1) boardwhite++;
             else {
                 int grp = curr.group;
                 if(grpVector[grp-1].type < 0) black++;
                 else if(grpVector[grp-1].type > 0) white++;
             }
         }
+        black += (999-white_Count)-boardwhite;
+        white += (999-black_Count)-boardblack;
     cout<<"Score: \n\tBlack: "<<black<<"\n\tWhite: "<<white<<endl;
 	cout<<"Number of Moves: "<<moves<<endl;
 	cout<<"Black Used: "<<999-black_Count<<endl;
 	cout<<"White Used: "<<999-white_Count<<endl;
     printGroup();
+    if(black < 0 || white < 0) {
+        cout<<"Error!"<<endl;
+        cin.ignore();
+    }
 }
 
 int Game::BlackWin() {   
     area();
-    int black = 0, white = bonus();
+    int black = 0, white = bonus(), boardblack = 0, boardwhite = 0;
     for (int i=0; i<BOARDSIZE; i++)
         for (int j = 0; j < BOARDSIZE; j++)
         {
             Item curr = futureboard[i][j];
-            if(curr.val == -1) black++;
-            else if(curr.val == 1) white++;
+            if(curr.val == -1) boardblack++;
+            else if(curr.val == 1) boardwhite++;
             else {
                 int grp = curr.group;
                 if(grpVector[grp-1].type < 0) black++;
                 else if(grpVector[grp-1].type > 0) white++;
             }
         }
+    black += (999-white_Count)-boardwhite;
+    white += (999-black_Count)-boardblack;
     if( black > white ) return 1;       //win
-    else if( black == white ) return -1; //tie
+    else if( black == white ) return 0; //tie
     else return -1;                     //lose
 }
 

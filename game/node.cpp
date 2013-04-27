@@ -36,6 +36,16 @@ void Node::Action(int actionid, int win) {
 	action[actionid].value += ( (double) win - action[actionid].value) / action[actionid].visit;
 }
 
+void Node::AMAFVisit(int actionid) {
+	if(debug) cout<<"Visiting Node id "<<id<<endl;
+	action[actionid].amafvisit++;
+}
+
+void Node::AMAFAction(int actionid, int win) {
+	if(debug) cout<<"Action update Node id "<<id<<endl<<"\tAction "<<actionid<<endl;
+	action[actionid].amafvalue += ( (double) win - action[actionid].amafvalue) / action[actionid].amafvisit;
+}
+
 Node* Node::Select( Coor move ) {
 	return action[ToOneD(move)].next;
 }
@@ -63,6 +73,46 @@ int Node::Compare(Item** toCompare) {
 		return -1;
 	}
 	return rotater;
+}
+
+TreeStruct Node::RaveSelectMove( double c, vector<int> legal, int player, int rotater ) {
+	if(debug) cout<<"Selecing Move from node id "<<id<<" Legal Moves for "<<(player == -1 ? "black" : "white")<<": "<<legal.size()<<endl;
+	double key = RaveActionValue( legal[0], player, c );
+	vector<int> index;
+	index.push_back(0);
+	for( int i = 1; i < (int) legal.size(); i++ )
+		if ( player == -1 && RaveActionValue(legal[i], player, c) > key ) {
+			if(debug) {
+				cout<<"\t\tBetter to do "<<legal[i]<<" "<<RaveActionValue(legal[i], player, c)<<endl;
+			}
+			index.clear();
+			key = RaveActionValue(legal[i], player, c);
+			index.push_back(i);
+		} else if (player == 1 && RaveActionValue(legal[i], player, c) < key ) {
+			if(debug) {
+				cout<<"\t\tBetter to do "<<legal[i]<<" "<<RaveActionValue(legal[i], player, c)<<endl;
+			}
+			index.clear();
+			key = RaveActionValue(legal[i], player, c);
+			index.push_back(i);
+		} else if ( RaveActionValue(legal[i], player, c) == key ) {
+			if(debug) {
+				cout<<"\t\tSame to do "<<legal[i]<<" "<<RaveActionValue(legal[i], player, c)<<endl;
+			}
+			index.push_back(i);
+		} else {
+			if(debug) {
+				cout<<"\t\tWorse to do "<<legal[i]<<" "<<RaveActionValue(legal[i], player, c)<<endl;
+			}
+		}
+	if(debug) cout<<"\tOptions to chose from: "<<index.size()<<endl;
+	int selected = legal[index[rand() % index.size()]];
+	if(debug) cout<<"\tSelected: "<<selected<<"==> "<<selected / boardsize<<","<< selected % boardsize<<endl;
+	TreeStruct data(NULL, Coor(-1,-1));
+	data.node = action[selected].next;
+	data.action = mapRotate((selected == boardsize*boardsize ? Coor(-1,-1) : Coor(selected / boardsize, selected % boardsize)), rotater);
+	if(debug) cout<<"\tPicked action "<<data.action.x<<", "<<data.action.y<<" referring to node "<<(data.node == NULL ? -100 : data.node->id )<<endl;
+	return data;
 }
 
 TreeStruct Node::SelectMove( double c, vector<int> legal, int player, int rotater ) {
@@ -114,6 +164,12 @@ bool Node::addConnect( Node* next, Coor move ) {
 }
 
 //Private functions
+double Node::RaveActionValue( int i, int player, double c ) {
+	//if(debug) cout<<"Updating action "<<i<<" of node id "<<id<<endl;
+	double beta = ( action[i].amafvisit+action[i].visit == 0 ? 1 : action[i].amafvisit / ( action[i].visit + action[i].amafvisit + 4*action[i].visit*action[i].amafvisit*c*c ));
+	return (1-beta)*action[i].value + beta*action[i].amafvalue; //since black is -1
+}
+
 double Node::ActionValue( int i, int player, double c ) {
 	//if(debug) cout<<"Updating action "<<i<<" of node id "<<id<<endl;
 	return action[i].value + -c*player*( action[i].visit == 0 ? 2 : sqrt( log((double) visit) / action[i].visit )); //since black is -1

@@ -22,6 +22,7 @@ class Agent {
 	vector<Coor> priority;
 	//difficulty of agent
 	int level;
+	double c;
 
 	//type of agent
 	int type;
@@ -31,15 +32,21 @@ class Agent {
 	Coor UCTSearch ();
 	Node* Simulate( );
 	vector<TreeStruct> SimTree(Node* prev);
-	int Default();
 	void BackUp( vector<TreeStruct> preferred, int win );
+	Coor RaveUCTSearch ( );
+	Node* RaveSimulate( );
+	vector<TreeStruct> RaveSimTree(Node* prev);
+	void RaveBackUp( int T, vector<TreeStruct> preferred, int win );
+	Coor RaveSelectMove(Node* );
+
 	Coor SelectMove(Node* );
 	vector<int> ConvertOneD();
 	int ConvertOneD(Coor );
 	void GetValidMoves();
+	int Default();
 
 	public:
-		Agent( Game*, UCT* );
+		Agent( Game*, UCT*, double );
 		void Change_game ( Game* curr_game ) { game = curr_game; };
 		void setDebug( bool debg ) { debug = debg; };
 		void setType( int ty ) { type = ty; };

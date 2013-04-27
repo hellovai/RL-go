@@ -32,6 +32,7 @@ int main (int argc, char* argv[]) {
 	int gameCounter = 1;
 	int p1level = 1, p2level = 1;
 	int p1type = 0, p2type = 0;
+	double p1c = 1, p2c = 1;
 
 	//read arguments and define variable based on them
 	for(int i=1; i<argc; i++) {
@@ -56,6 +57,11 @@ int main (int argc, char* argv[]) {
 						p1type = atoi(argv[i]);
 					else
 						usage_err(temp);
+				} else if ( temp.compare("-cvar") == 0 ) {
+					if(++i<argc)
+						p1c = atof(argv[i]);
+					else
+						usage_err(temp);
 				} else {
 					--i;
 					check = false;
@@ -74,6 +80,11 @@ int main (int argc, char* argv[]) {
 				} else if ( temp.compare("-type") == 0 ) {
 					if(++i<argc)
 						p2type = atoi(argv[i]);
+					else
+						usage_err(temp);
+				} else if ( temp.compare("-cvar") == 0 ) {
+					if(++i<argc)
+						p2c = atof(argv[i]);
 					else
 						usage_err(temp);
 				} else {
@@ -105,31 +116,59 @@ int main (int argc, char* argv[]) {
 		} else
 			usage_err(temp);
 	}
+	//if not same type use different tree
+	if(p1type != p2type) selfplay = false;
 
 	// print starting config
 	cout<<"Configuration: "<<endl;
 	cout<<"\tBoardsize:\t"<<boardsize<<endl<<endl;
 	cout<<"\tPlayer 1:\t"<<(c1 ? "Agent" : "Human")<<endl;
-	if(c1) {
-		cout<<"\tType:\t\t"<<(p1type == 1 ? "UCT" : "Random")<<endl;
-		if(p1type == 1) cout<<"\tLevel:\t\t"<<p1level<<endl;
+	if(c1) {		
+		cout<<"\tType:\t\t";
+		switch(p1type) {
+			case 1:
+				cout<<"UCT";
+				break;
+			case 2:
+				cout<<"UCT-Rave";
+				break;
+			case 0:
+			default:
+				cout<<"Random";
+		}
+		cout<<endl;
+		if(p1type == 1 || p1type == 2) cout<<"\tLevel:\t\t"<<p1level<<endl;
 	}
 	cout<<"\n\tPlayer 2:\t"<<(c2 ? "Agent" : "Human")<<endl;
 	if(c2) {
-		cout<<"\tType:\t\t"<<(p2type == 1 ? "UCT" : "Random")<<endl;
-		if(p2type == 1) cout<<"\tLevel:\t\t"<<p2level<<endl;
+		cout<<"\tType:\t\t";
+		switch(p2type) {
+			case 1:
+				cout<<"UCT";
+				break;
+			case 2:
+				cout<<"UCT-Rave";
+				break;
+			case 0:
+			default:
+				cout<<"Random";
+		}
+		cout<<endl;
+		if(p2type == 1 || p2type == 2) cout<<"\tLevel:\t\t"<<p2level<<endl;
 	}
+	if(c1 && c2)
+		cout<<"\n\tSelfplay:\t"<<(selfplay ? "Enabled" : "Disabled")<<endl;
 	cout<<endl;
 	tboardsize = boardsize;
 	Game* game = new Game(boardsize);
 	UCT* gametree = new UCT(boardsize, debug);
 	UCT* gametree2 = new UCT(boardsize, debug);
-	Agent* p1 = new Agent(game, gametree);
+	Agent* p1 = new Agent(game, gametree, p1c);
 	Agent* p2;
 	if(selfplay) 
-		p2 = new Agent(game, gametree);
+		p2 = new Agent(game, gametree, p2c);
 	else {
-		p2 = new Agent(game, gametree2);
+		p2 = new Agent(game, gametree2, p2c);
 	}
 	game->setDebug(false);
 	p1->setDebug(debug);
@@ -182,7 +221,7 @@ int main (int argc, char* argv[]) {
 			game->Move(move);
 		}
 		//display result
-		if(score) game->Score();
+		if(score || debug || pause) game->Score();
 		switch(game->BlackWin()) {
 			case 1:
 				blackwin++;
@@ -193,7 +232,7 @@ int main (int argc, char* argv[]) {
 		}
 	}
 
-	if(selfplay) cout<<"White Tree size: "<<gametree2->Size()<<endl<<"Black ";
+	if(!selfplay) cout<<"White Tree size: "<<gametree2->Size()<<endl<<"Black ";
 	cout<<"Tree size: "<<gametree->Size()<<endl;
 	cout<<"Black Win: "<<blackwin<<endl;
 	cout<<"White Win: "<<whitewin<<endl;
@@ -208,10 +247,12 @@ void usage_err(string var) {
 	cout<<"\t-board <int>\t-- Changes Boardsize"<<endl;
 	cout<<"\t-c1\t\t-- Enable Agent Player 1"<<endl;
 	cout<<"\t-c2\t\t-- Enable Agent Player 2"<<endl;
+	cout<<"\t-cvar <double>\t-- Set c for UCT"<<endl;
 	cout<<"\t-debug\t\t-- Show details of learning"<<endl;
 	cout<<"\t-h\t\t-- Displays this menu"<<endl;
 	cout<<"\t-level <int>\t-- Depth of tree to search"<<endl;
 	cout<<"\t-p\t\t-- Display board after every turn"<<endl;
+	cout<<"\t-score\t-- Displays score at the end of game"<<endl;
 	cout<<"\t-selfoff\t-- Agents use two different trees"<<endl;
 	cout<<"\t-type <int>\t-- 0 Random\n\t\t\t-- 1 UCT Vanilla"<<endl;
 	exit(0);
@@ -220,6 +261,7 @@ void usage_err(string var) {
 Coor getHuman() {
 	Coor move(-1,-1);
 	char x;
+	cout<<"Enter Move: ";
 	cin>>x;
 	if(x == 'P')
 		return move;

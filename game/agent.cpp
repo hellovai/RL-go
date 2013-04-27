@@ -16,21 +16,22 @@
 
 using namespace std;
 
-Agent::Agent( Game* curr_game, UCT* gametree ) {
+Agent::Agent( Game* curr_game, UCT* gametree, double inputc ) {
 	type = 0;
 	level = 82;
 	game = curr_game;
 	UCTtree = gametree;
 	moveData.clear();
+	c = inputc;
 };
 
 Coor Agent::Move( ) {
 	if(debug) cout<<"Starting Move"<<endl;
 	switch(type) {
 		case 1: //vanilla
-		case 2: //rave
-			if(debug) cout<<"Beginning UCT Search:"<<endl;
 			return UCTSearch();
+		case 2: //rave
+			return RaveUCTSearch();
 		case 0:
 		default:
 			return Random();
@@ -59,6 +60,23 @@ Coor Agent::Random() {
 	return moveData[ rand() % moveData.size()];
 }
 
+
+Coor Agent::RaveUCTSearch () {
+	if(debug) cout<<"Starting UCTRaveSearch"<<endl;
+	Node* curr;
+	int i = 0;
+	bool nope = true;
+	if(debug) cout<<"Staring While Loop"<<endl;
+	while(i < level ) {
+		curr = RaveSimulate();
+		if (debug) cout<<"\t\033[1;31msimulate for Times "<<i<<"\033[0m"<<endl;
+		//if(debug) cin.ignore();
+		i++;
+	}
+	if(debug) cout<<"Ending While Loop"<<endl;
+	if(debug) curr->Print();
+	return RaveSelectMove(curr);
+}
 Coor Agent::UCTSearch () {
 	if(debug) cout<<"Starting UCTSearch"<<endl;
 	Node* curr;
@@ -76,8 +94,50 @@ Coor Agent::UCTSearch () {
 	return SelectMove(curr);
 }
 
-
-
+Node* Agent::RaveSimulate( ) {
+	if(debug) cout<<"Starting Rave Simulate"<<endl;
+	Game* holder = game;
+	vector<Coor> moveHistory = holder->History();
+	game = new Game(holder->Boardsize());
+	//set board to current position
+	game->Reset();
+	Node* start = UCTtree->Root();
+	Node* relaventpos = start;
+	priority.clear();
+	for(int j=0; j<(int) moveHistory.size(); j++) {
+		if( start == NULL ) {
+			cout<<"\tStart was null"<<endl;
+			//dump data
+			exit(0);
+		}
+		if(debug) cout<<"Starting node: "<<start->id<<endl;
+		int rotater = start->Compare(game->board());
+		game->ValidMove(moveHistory[j]);
+		game->Move(moveHistory[j]);
+		relaventpos = start->Select(mapRotate(moveHistory[j], rotater));
+		if(relaventpos != NULL)
+			start = relaventpos;
+		else {
+			if(debug) cout<<"No move history exists!"<<endl;
+			for( ; j < (int) moveHistory.size(); j++)
+				priority.push_back(moveHistory[j]);
+		}
+	}
+	relaventpos = start;
+	if(start == NULL) {
+		game->Print();
+		cout<<"Starting node is null!"<<endl;
+		exit(0);
+	}
+	// Now position is at current board
+	vector<TreeStruct> preferred = RaveSimTree(start); // returns s_0 -> s_t
+	int T = game->History().size();
+	int z = Default();
+	RaveBackUp(T, preferred, z);
+	if(debug) cout<<(z == 1 ? "Black wins!" : (z == 0 ? "Tie!" : "White Wins!"))<<endl;
+	game = holder;
+	return relaventpos;
+}
 Node* Agent::Simulate( ) {
 	if(debug) cout<<"Starting Simulate"<<endl;
 	Game* holder = game;
@@ -113,6 +173,7 @@ Node* Agent::Simulate( ) {
 		cout<<"Starting node is null!"<<endl;
 		exit(0);
 	}
+
 	vector<TreeStruct> preferred = SimTree(start); // returns s_0 -> s_t
 	int z = Default();
 	BackUp(preferred, z);
@@ -121,10 +182,65 @@ Node* Agent::Simulate( ) {
 	return relaventpos;
 }
 
+vector<TreeStruct> Agent::RaveSimTree(Node* prev) {
+	if(debug) cout<<"Starting Sim Tree"<<endl;
+	vector<TreeStruct> reldata;
+	Node *curr = prev; //prev->Search(game->board());
+	TreeStruct data(NULL, Coor(-1,-1));
+	while(!game->Status()) {
+		if(curr == NULL) {
+			if (debug) cout<<"\tNew node is added"<<endl;
+			Coor move = game->History()[game->History().size() - 1];
+			int rotater = prev->Compare(game->previous());
+			move = mapRotate(move, rotater);
+			curr = UCTtree->insert(prev, game->board(), move);
+			
+			GetValidMoves();
+			if(priority.size() == 0) {
+				data = curr->RaveSelectMove(c, ConvertOneD(), game->Turn(), 8 );
+			} else {
+				data.node = NULL;
+				data.action = priority[0];
+				priority.erase(priority.begin());
+			}
+
+			reldata.push_back(TreeStruct(curr, data.action));
+			return reldata;
+		}
+		if(debug) cout <<"\t no new node is added"<<endl;
+		
+		GetValidMoves();
+		int rotater = curr->Compare(game->board());
+		if(priority.size() == 0) {
+			data = curr->RaveSelectMove( c, ConvertOneD(), game->Turn(), rotater );
+		} else {
+			data.node = NULL;
+			data.action = priority[0];
+			priority.erase(priority.begin());
+		}
+		game->ValidMove(data.action);
+		game->Move(data.action);
+		if(debug)
+			cout<<"\tWill Back up node "<<(curr == NULL ? -100 : curr->id)<<" action "<<data.action.x<<", "<<data.action.y<<endl;;
+		reldata.push_back(TreeStruct(curr, data.action));
+		prev = curr;
+		curr = data.node;
+		if(curr == NULL) {
+			curr = UCTtree->Search(game->board());
+			if(curr != NULL ) {
+				prev->addConnect(curr, data.action);
+				if(debug) cout<<"Found connection!"<<endl;
+				prev->Print();
+				curr->Print();
+				cin.ignore();
+			}
+		}
+	}
+	return reldata;	
+}
 vector<TreeStruct> Agent::SimTree(Node* prev) {
 	if(debug) cout<<"Starting Sim Tree"<<endl;
 	vector<TreeStruct> reldata;
-	double c = 1.0;
 	Node *curr = prev; //prev->Search(game->board());
 	TreeStruct data(NULL, Coor(-1,-1));
 	while(!game->Status()) {
@@ -189,6 +305,38 @@ int Agent::Default() {
 	return game->BlackWin();
 }
 
+void Agent::RaveBackUp(int T, vector<TreeStruct> preferred, int win ) {
+	if (debug) cout<<"beginning Rave backup"<<endl;
+	if(debug) cout <<"\tnode backup size "<<preferred.size()<<endl;
+	if(debug) {
+		cout<<"\t";
+		for(int i=0; i<(int) preferred.size(); i++)
+			cout<<(preferred[i].node == NULL ? -100 : preferred[i].node->id)<<" ";
+		cout<<endl;
+	}
+	vector<Coor> history = game->History();
+	for(int i=0; i<(int) preferred.size(); i++) {
+		Node* current = preferred[i].node;
+		if (current==NULL){
+	     	if (debug) cout<<"\tpreferred node is empty index "<<i<<endl;
+	     		exit (0);
+		}
+		current->Action(ConvertOneD(preferred[i].action), win);
+		
+		for(int j=i; j<(int) history.size(); j=j+2) {
+			Coor update = history[j];
+			bool check = true;
+			for(int k=i; k<j-1 && check; k=k+2) {
+				if(history[k].x == history[j].x && history[k].y == history[j].y)
+					check = false;
+			}
+			if(check) {
+				current->AMAFVisit(ConvertOneD(history[j]));
+				current->AMAFAction(ConvertOneD(history[j]), win);
+			}
+		}
+	}
+}
 void Agent::BackUp( vector<TreeStruct> preferred, int win ) {
 	if (debug) cout<<"beginning backup"<<endl;
 	if(debug) cout <<"\tnode backup size "<<preferred.size()<<endl;
@@ -209,9 +357,15 @@ void Agent::BackUp( vector<TreeStruct> preferred, int win ) {
 		if(i<(int) preferred.size() - 1)
 			current->Action(ConvertOneD(preferred[i].action), win);
 	}
-
 }
 
+Coor Agent::RaveSelectMove(Node* curr) {
+	if(debug) cout<<"beginning SelectMove"<<endl;
+	//search tree to find node
+	GetValidMoves();
+	int rotater = curr->Compare(game->board());
+	return curr->RaveSelectMove(c, ConvertOneD(), game->Turn(), rotater).action;
+}
 Coor Agent::SelectMove(Node* curr) {
 	if(debug) cout<<"beginning SelectMove"<<endl;
 	//search tree to find node

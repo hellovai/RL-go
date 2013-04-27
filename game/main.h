@@ -56,12 +56,14 @@ struct treestruct{
 };
 
 struct act{
-	int visit;
-	double value;
+	int visit, amafvisit;
+	double value, amafvalue;
 	Node* next;
 	act() {
 		visit = 0;
 		value = 0;
+		amafvisit = 0;
+		amafvalue = 0;
 		next = NULL;
 	}
 };
