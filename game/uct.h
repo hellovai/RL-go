@@ -25,6 +25,7 @@ class UCT {
 	public:
 		UCT(int, bool );
 		~UCT();
+                void UCT_output();
 
 		Node* insert(Node* , Item** , Coor );
 //		void delete(Item** );

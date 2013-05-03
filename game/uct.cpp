@@ -79,4 +79,40 @@ Node* UCT::Search(Item** board) {
 	return NULL;
 }
 
+void UCT::UCT_output(){
+	ofstream myfile; 
+	myfile.open("UCT_Tree");
+	myfile<<size<<endl;
+	myfile<<boardsize<<endl;
+	UCT_Write(root,myfile);
+}
+
+void UCT::UCT_Write(Node* current, ofstream myfile){
+	if (current == NULL)
+		return;
+	int i, j;
+	for (i=0; i<boardsize; i++) {
+		for (j=0; j<boardsize; j++){
+			myfile << current->board[i][j];
+			if (j==boardsize-1)
+				myfile<<endl;
+		}
+	}
+	myfile << current->visit<<endl;
+	myfile << current->id<<endl;
+	for (i=0; i<=boardsize*boardsize;i++){
+		myfile << current->visit<<endl;
+		myfile <<amafvisit<<endl;
+		myfile <<value<<endl;
+		myfile <<amafvalue<<endl;
+		if (next==NULL)
+			myfile<<-1<<endl;
+		else
+			myfile<<current
+	
+
+
+
+	
+
 //Private Functions
