@@ -33,7 +33,7 @@ int main (int argc, char* argv[]) {
 	int p1level = 1, p2level = 1;
 	int p1type = 0, p2type = 0;
 	double p1c = 1, p2c = 1;
-	string treeout = "", tree2out = "", loadone = "", loadtwo = ""; 
+	string treeout = "", tree2out = "", loadone = "", loadtwo = "", output = ""; 
 
 	//read arguments and define variable based on them
 	for(int i=1; i<argc; i++) {
@@ -122,6 +122,11 @@ int main (int argc, char* argv[]) {
 		} else if (temp.compare("-g") == 0) {
 			if(++i<argc)
 				gameCounter = atoi(argv[i]);
+			else
+				usage_err(temp);
+		} else if (temp.compare("-output") == 0) {
+			if(++i<argc)
+				output = argv[i];
 			else
 				usage_err(temp);
 		} else if (temp.compare("-selfoff") == 0) {
@@ -240,7 +245,8 @@ int main (int argc, char* argv[]) {
 	p2->setType(p2type);
 	p1->setLevel(p1level);
 	p2->setLevel(p2level);
-
+	ofstream myfile;
+	myfile.open(output.c_str());
 	int blackwin = 0, whitewin = 0;
 	for(int g = 0; g<gameCounter; g++ ) {
 		game->Reset();
@@ -285,13 +291,14 @@ int main (int argc, char* argv[]) {
 		//display result
 		if(score || debug || pause) game->Score();
 		int result = game->BlackWin();
+		myfile<<result<<endl;
 		if(result < 0) {
 			whitewin++;
 		} else if (result > 0) {
 			blackwin++;
 		}
 	}
-
+	myfile.close();
 	if(treeout.length() != 0)
 		gametree->UCT_Output(treeout);
 	if(tree2out.length() != 0 && !selfplay)
