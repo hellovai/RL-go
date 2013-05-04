@@ -23,7 +23,7 @@ if $UctUct ; then
 			do
 				for wtype in ${whitelist[*]}
 				do
-					./go -c1 -type $btype -level $blevel -dump results/tree-black-$blevel-$btype -c2 -type $wtype -level $wblevel -dump results/tree-white-$wlevel-$wtype -g $game -output results/black_$blevel-$btype-white_$wlevel-$wtype.dat   
+					./go -c1 -type $btype -level $blevel -dump results/tree-black-$blevel-$btype -c2 -type $wtype -level $wlevel -dump results/tree-white-$wlevel-$wtype -g $game -output results/black_$blevel-$btype-white_$wlevel-$wtype.dat   
 				done
 			done
 		done
@@ -48,7 +48,7 @@ elif $BasicUct; then
 		do
 			for wtype in ${whitelist[*]}
 			do
-				./go -c1 -type $btype -c2 -type $wtype -level $wblevel -dump results/tree-white-$wlevel-$wtype -g $game -output results/black_$blevel-$btype-white_$wtype.dat   
+				./go -c1 -type $btype -c2 -type $wtype -level $wlevel -dump results/tree-white-$wlevel-$wtype -g $game -output results/black_$blevel-$btype-white_$wtype.dat   
 			done
 		done
 	done
