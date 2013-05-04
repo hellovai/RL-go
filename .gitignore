@@ -18,3 +18,4 @@ a.out
 # temporary files
 *~
 *#
+gmon.out
