@@ -70,16 +70,21 @@ Coor Agent::Heuristic() {
 	if(debug) cout<<"Starting Heuristic"<<endl;
 	GetValidMoves();
 	vector<int> score;
-	for(int j = 0; j < (int) moveData.size(); j++) {
-		Game* gametemp = new Game(game->Boardsize());
-		vector<Coor> history = game->History();
-		for(int i = 0; i < (int) history.size(); i++) {
-			gametemp->ValidMove(history[i]);
-			gametemp->Move(history[i]);
-		}			
+	// if(debug) cout<<"starting board"<<endl;	
+	// if(debug) cout<<"Moves to catch up "<<history.size()<<endl;	
+	Game* gametemp = new Game(game->Boardsize());
+	if(debug) cout<<"starting board"<<endl;	
+	for(int i = 0; i < (int) game->History().size(); i++) {
+		gametemp->ValidMove(game->History()[i]);
+		gametemp->Move(game->History()[i]);
+	}	
+	// if(debug) cout<<"initialized board"<<endl;	
+	for(int j = 0; j < (int) moveData.size(); j++) {	
+		//if(debug) cout<<"Trial number: "<<j<<endl;	
 		gametemp->ValidMove(moveData[j]);
 		gametemp->Move(moveData[j]);
-		score.push_back(gametemp->BlackWin());
+		score.push_back(gametemp->BlackWin()*(gametemp->Status() ? 2 : 1));
+		gametemp->Undo();
 		//if(debug) gametemp->Print();
 		//if(debug) cout<<"Score of move: "<<moveData[j].x<<" "<<moveData[j].y<<" "<<gametemp->BlackWin()<<endl;
 	}

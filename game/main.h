@@ -10,6 +10,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#define PEICEMAX 200
 
 using namespace std;
 

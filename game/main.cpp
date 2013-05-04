@@ -33,6 +33,7 @@ int main (int argc, char* argv[]) {
 	int p1level = 1, p2level = 1;
 	int p1type = 0, p2type = 0;
 	double p1c = 1, p2c = 1;
+	string treeout = "", tree2out = "", loadone = "", loadtwo = ""; 
 
 	//read arguments and define variable based on them
 	for(int i=1; i<argc; i++) {
@@ -62,6 +63,16 @@ int main (int argc, char* argv[]) {
 						p1c = atof(argv[i]);
 					else
 						usage_err(temp);
+				} else if ( temp.compare("-dump") == 0 ) {
+					if(++i<argc)
+						treeout = argv[i];
+					else
+						usage_err(temp);
+				} else if ( temp.compare("-load") == 0 ) {
+					if(++i<argc)
+						loadone = argv[i];
+					else
+						usage_err(temp);
 				} else {
 					--i;
 					check = false;
@@ -85,6 +96,16 @@ int main (int argc, char* argv[]) {
 				} else if ( temp.compare("-cvar") == 0 ) {
 					if(++i<argc)
 						p2c = atof(argv[i]);
+					else
+						usage_err(temp);
+				} else if ( temp.compare("-dump") == 0 ) {
+					if(++i<argc)
+						tree2out = argv[i];
+					else
+						usage_err(temp);
+				} else if ( temp.compare("-load") == 0 ) {
+					if(++i<argc)
+						loadtwo = argv[i];
 					else
 						usage_err(temp);
 				} else {
@@ -127,10 +148,25 @@ int main (int argc, char* argv[]) {
 		cout<<"\tType:\t\t";
 		switch(p1type) {
 			case 1:
-				cout<<"UCT";
+				cout<<"UCT-Random";
+				break;
+			case 10:
+				cout<<"UCT-Random";
+				break;
+			case 13:
+				cout<<"UCT-Heuristic";
 				break;
 			case 2:
 				cout<<"UCT-Rave";
+				break;
+			case 20:
+				cout<<"UCT-Rave-Random";
+				break;
+			case 23:
+				cout<<"UCT-Rave-Heuristic";
+				break;
+			case 3:
+				cout<<"Heuristic";
 				break;
 			case 0:
 			default:
@@ -144,10 +180,25 @@ int main (int argc, char* argv[]) {
 		cout<<"\tType:\t\t";
 		switch(p2type) {
 			case 1:
-				cout<<"UCT";
+				cout<<"UCT-Random";
+				break;
+			case 10:
+				cout<<"UCT-Random";
+				break;
+			case 13:
+				cout<<"UCT-Heuristic";
 				break;
 			case 2:
 				cout<<"UCT-Rave";
+				break;
+			case 20:
+				cout<<"UCT-Rave-Random";
+				break;
+			case 23:
+				cout<<"UCT-Rave-Heuristic";
+				break;
+			case 3:
+				cout<<"Heuristic";
 				break;
 			case 0:
 			default:
@@ -159,15 +210,26 @@ int main (int argc, char* argv[]) {
 	if(c1 && c2)
 		cout<<"\n\tSelfplay:\t"<<(selfplay ? "Enabled" : "Disabled")<<endl;
 	cout<<endl;
+	if( (tree2out.length() != 0 || treeout.length() != 0) && selfplay )
+		cout<<"\n\tOutput:\t"<<treeout<<endl;
+	else if ((tree2out.length() != 0) && !selfplay) 
+		cout<<"\n\tSecond Tree:\t"<<tree2out<<endl;
+
 	tboardsize = boardsize;
 	Game* game = new Game(boardsize);
 	UCT* gametree = new UCT(boardsize, debug);
+	if(loadone.length() != 0)
+		gametree->UCT_Load(loadone);
 	UCT* gametree2 = new UCT(boardsize, debug);
 	Agent* p1 = new Agent(game, gametree, p1c);
 	Agent* p2;
-	if(selfplay) 
+	if(selfplay){ 
+		if(loadtwo.length() != 0)
+			gametree->UCT_Load(loadtwo);
 		p2 = new Agent(game, gametree, p2c);
-	else {
+	} else {
+		if(loadtwo.length() != 0)
+			gametree2->UCT_Load(loadtwo);
 		p2 = new Agent(game, gametree2, p2c);
 	}
 	game->setDebug(false);
@@ -230,8 +292,12 @@ int main (int argc, char* argv[]) {
 		}
 	}
 
-	//gametree2->UCT_Load("treedata");
-	//gametree2->UCT_Output("testdata");
+	if(treeout.length() != 0)
+		gametree->UCT_Output(treeout);
+	if(tree2out.length() != 0 && !selfplay)
+		gametree2->UCT_Output(tree2out);
+	if(tree2out.length() != 0 && selfplay)
+		gametree->UCT_Output(tree2out);
 	if(!selfplay && (p2type == 1 || p2type == 2)) cout<<"White Tree size: "<<gametree2->Size()<<endl<<"Black ";
 	cout<<"Tree size: "<<gametree->Size()<<endl;
 	cout<<"Black Win: "<<blackwin<<endl;
@@ -263,6 +329,8 @@ Coor getHuman() {
 	char x;
 	cout<<"Enter Move: ";
 	cin>>x;
+	if(x == 'U')
+		return Coor(100,100);
 	if(x == 'P')
 		return move;
 	if(x == 'Q') {

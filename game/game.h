@@ -18,6 +18,7 @@ class Game {
 	int BOARDSIZE;
 	Item **currboard;
 	Item **prevboard;
+	Item **prevprevboard;
 	Item **futureboard;
 	vector<Coor> moveList;
 
@@ -26,6 +27,8 @@ class Game {
 	bool my_status; 	// if game is over, then this is true
 	bool pass;
 	bool validpass;
+	bool undo;
+	bool validundo;
 
 	int black_Count;
 	int white_Count;
@@ -70,6 +73,7 @@ public:
 	int BlackWin();
 	vector<Coor> History() { return moveList; };
 	void printPrev();
+	void Undo();
 };
 
 //=================================

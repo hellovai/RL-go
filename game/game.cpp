@@ -25,8 +25,10 @@ void Game::Reset() {
 	my_status = false;
 	pass = false;
 	validpass = false;
-	black_Count = 999;
-	white_Count = 999;
+    undo = false;
+    validundo = false;
+	black_Count = PEICEMAX;
+	white_Count = PEICEMAX;
     moveList.clear();
     debug = false;
 	
@@ -46,14 +48,17 @@ void Game::Reset() {
 
 	currboard = new Item*[BOARDSIZE];
     prevboard = new Item*[BOARDSIZE];
+    prevprevboard = new Item*[BOARDSIZE];
     futureboard = new Item*[BOARDSIZE];
 	for(int i=0;i<BOARDSIZE;i++) {
 		currboard[i] = new Item[BOARDSIZE];
 		prevboard[i] = new Item[BOARDSIZE];
+        prevprevboard[i] = new Item[BOARDSIZE];
         futureboard[i] = new Item[BOARDSIZE];
 		for(int j=0;j<BOARDSIZE;j++) {
 			currboard[i][j] = empty;
             prevboard[i][j] = empty;
+            prevprevboard[i][j] = empty;
             futureboard[i][j] = empty;
 		}
 	}
@@ -123,6 +128,11 @@ void Game::printGroup() {
 
 bool Game::ValidMove ( Coor move ) {
     //special case for passing
+    if(move.x == 100 && move.y == 100 && !undo) {
+        undo = true;
+        validundo = true;
+        return true;
+    }
     if( (current_player == -1 && black_Count == 0) || (current_player == 1 && white_Count == 0) )
         move = Coor(-1,-1);
     if(move.x == -1 && move.y == -1) {
@@ -166,33 +176,64 @@ bool Game::ValidMove ( Coor move ) {
 		for(int j=0; j<BOARDSIZE; j++)
 			if(futureboard[i][j].val != prevboard[i][j].val)
 				return true;
-    //cout<<"Same as prevboard"<<endl;
 	return false;
 }
 
 void Game::Move(Coor move) {
-	if(!validpass) {
-        pass = false;
-        for(int i=0; i<BOARDSIZE; i++)
-           for(int j=0; j<BOARDSIZE; j++) {
-                prevboard[i][j] = currboard[i][j];
-                currboard[i][j] = futureboard[i][j];   
-           }
-        if(current_player == -1)
-            black_Count--;
-        else
-            white_Count--;
-	} else {
-        if(debug) cout<<(current_player == -1 ? "Black" : "White")<<" Passed!"<<endl;
-    }
-        moveList.push_back(move);
-		validpass = false;
-        current_player *= -1;
-		moves++;
-        if(debug) cout<<"Turn of: "<<(current_player == -1 ? "Black" : "White")<<endl;
-		
+    if(undo && validundo)
+        Undo();
+    else {
+    	if(!validpass) {
+            pass = false;
+            for(int i=0; i<BOARDSIZE; i++)
+               for(int j=0; j<BOARDSIZE; j++) {
+                    prevprevboard[i][j] = prevboard[i][j];
+                    prevboard[i][j] = currboard[i][j];
+                    currboard[i][j] = futureboard[i][j];   
+               }
+            if(current_player == -1)
+                black_Count--;
+            else
+                white_Count--;
+    	} else {
+            if(debug) cout<<(current_player == -1 ? "Black" : "White")<<" Passed!"<<endl;
+        }
+            moveList.push_back(move);
+    		validpass = false;
+            current_player *= -1;
+    		moves++;
+            undo = false;
+            validundo = false;
+            if(debug) cout<<"Turn of: "<<(current_player == -1 ? "Black" : "White")<<endl;
+	}
 //        if( black_Count + white_Count <= 0 )
 //            my_status = true;
+}
+
+void Game::Undo()
+{
+    current_player *= -1;
+    moves--;
+    if (!pass)
+    {
+        for(int i=0; i<BOARDSIZE; i++)
+           for(int j=0; j<BOARDSIZE; j++) {
+                currboard[i][j] = prevboard[i][j];   
+                prevboard[i][j] = prevprevboard[i][j];
+           }
+        if(current_player == -1)
+            black_Count++;
+        else
+            white_Count++;
+    }
+    else if(my_status)
+        my_status = false;
+    else
+        pass = false;
+    //cout<<"Pass is: "<<pass<<endl;
+    //cout<<"Status is: "<<my_status<<endl;
+    moveList.pop_back();
+    validundo = false;
 }
 
 //private functions
@@ -266,6 +307,8 @@ void Game::subeat(Coor position) {
 
 //finds regions of both black and white
 void Game::area() {
+    grpVector.clear();
+    grpCtr = 0;
 	for( int i=0; i<BOARDSIZE; i++ )
 		for(int j = 0; j<BOARDSIZE; j++)
 			if(futureboard[i][j].group == 0 && futureboard[i][j].val == 0) {
@@ -354,17 +397,18 @@ void Game::Score( ) {
                 else if(grpVector[grp-1].type > 0) white++;
             }
         }
-        black += (999-white_Count)-boardwhite;
-        white += (999-black_Count)-boardblack;
+        black += (PEICEMAX-white_Count)-boardwhite;
+        white += (PEICEMAX-black_Count)-boardblack;    
+        if(black < 0 || white < 0) {
+            black++;
+            white++;
+        }
     cout<<"Score: \n\tBlack: "<<black<<"\n\tWhite: "<<white<<endl;
 	cout<<"Number of Moves: "<<moves<<endl;
-	cout<<"Black Used: "<<999-black_Count<<endl;
-	cout<<"White Used: "<<999-white_Count<<endl;
+	cout<<"Black Used: "<<PEICEMAX-black_Count<<endl;
+	cout<<"White Used: "<<PEICEMAX-white_Count<<endl;
     printGroup();
-    if(black < 0 || white < 0) {
-        cout<<"Error!"<<endl;
-        cin.ignore();
-    }
+
 }
 
 int Game::BlackWin() {   
@@ -382,9 +426,8 @@ int Game::BlackWin() {
                 else if(grpVector[grp-1].type > 0) white++;
             }
         }
-    black += (999-white_Count)-boardwhite;
-    white += (999-black_Count)-boardblack;
-    
+    black += (PEICEMAX-white_Count)-boardwhite;
+    white += (PEICEMAX-black_Count)-boardblack;
     return black - white;
 }
 
