@@ -222,17 +222,17 @@ int main (int argc, char* argv[]) {
 		}
 		//display result
 		if(score || debug || pause) game->Score();
-		switch(game->BlackWin()) {
-			case 1:
-				blackwin++;
-				break;
-			case -1:
-				whitewin++;
-				break;
+		int result = game->BlackWin();
+		if(result < 0) {
+			whitewin++;
+		} else if (result > 0) {
+			blackwin++;
 		}
 	}
 
-	if(!selfplay) cout<<"White Tree size: "<<gametree2->Size()<<endl<<"Black ";
+	//gametree2->UCT_Load("treedata");
+	//gametree2->UCT_Output("testdata");
+	if(!selfplay && (p2type == 1 || p2type == 2)) cout<<"White Tree size: "<<gametree2->Size()<<endl<<"Black ";
 	cout<<"Tree size: "<<gametree->Size()<<endl;
 	cout<<"Black Win: "<<blackwin<<endl;
 	cout<<"White Win: "<<whitewin<<endl;

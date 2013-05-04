@@ -9,7 +9,6 @@ all: $(SOURCES) $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
-	rm -rf $(OBJECTS)
 	mv $(EXECUTABLE) ../
 
 .cpp.o:

@@ -15,7 +15,6 @@ using namespace std;
 
 class Node {
 
-	int **board;
 	int boardsize;
 	int visit;
 	bool debug;
@@ -38,8 +37,10 @@ class Node {
 
 	public:
 		Node(int, Item**, int );
+		Node(int, int );
 		int Id( ) { return id; };
 
+		int **board;
 		int id;
 		void Visit();
 		void Action(int, int);
@@ -54,6 +55,16 @@ class Node {
 		void setDebug(bool x ) {debug = x;};
 		void Print();
 		string GetCharPlayer(int );
+
+		//for read and write only
+		int getVisit();
+		int getVisit(int );
+		int getAMAFVisit(int );
+		double getValue(int );
+		double getAMAFValue(int );
+		void Load(int, Node*, int, double, int, double);
+		void setBoard(int** );
+		void setVisit(int );
 };
 
 //=================================

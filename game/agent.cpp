@@ -28,10 +28,16 @@ Agent::Agent( Game* curr_game, UCT* gametree, double inputc ) {
 Coor Agent::Move( ) {
 	if(debug) cout<<"Starting Move"<<endl;
 	switch(type) {
-		case 1: //vanilla
+		case 1: //vanilla - random
+		case 10: //vanilla - random
+		case 13: //vanilla - heuristic
 			return UCTSearch();
-		case 2: //rave
+		case 2:
+		case 20: //rave - heuristic
+		case 23: //vanilla - heuristic
 			return RaveUCTSearch();
+		case 3:
+			return Heuristic();
 		case 0:
 		default:
 			return Random();
@@ -60,6 +66,40 @@ Coor Agent::Random() {
 	return moveData[ rand() % moveData.size()];
 }
 
+Coor Agent::Heuristic() {
+	if(debug) cout<<"Starting Heuristic"<<endl;
+	GetValidMoves();
+	vector<int> score;
+	for(int j = 0; j < (int) moveData.size(); j++) {
+		Game* gametemp = new Game(game->Boardsize());
+		vector<Coor> history = game->History();
+		for(int i = 0; i < (int) history.size(); i++) {
+			gametemp->ValidMove(history[i]);
+			gametemp->Move(history[i]);
+		}			
+		gametemp->ValidMove(moveData[j]);
+		gametemp->Move(moveData[j]);
+		score.push_back(gametemp->BlackWin());
+		//if(debug) gametemp->Print();
+		//if(debug) cout<<"Score of move: "<<moveData[j].x<<" "<<moveData[j].y<<" "<<gametemp->BlackWin()<<endl;
+	}
+	int maxscore = score[0];
+	vector<int> index (1, 0);
+	for(int i = 1; i < (int) score.size(); i++) {
+		if(game->Turn() == -1 && score[i] > maxscore) {
+			maxscore = score[i];
+			index.clear();
+			index.push_back(i);
+		} if(game->Turn() == 1 && score[i] < maxscore) {
+			maxscore = score[i];
+			index.clear();
+			index.push_back(i);
+		} else if (score[i] == maxscore)
+			index.push_back(i);
+	}
+	//if(debug) cout<<"Done Simulating!"<<endl;
+	return moveData[index[rand() % index.size()]];
+}
 
 Coor Agent::RaveUCTSearch () {
 	if(debug) cout<<"Starting UCTRaveSearch"<<endl;
@@ -295,7 +335,14 @@ int Agent::Default() {
 			//game->Print();
 		}
 		switch(type) {
+			case 3:
+			case 13:
+			case 23:
+				move = Heuristic();
 			case 1:
+			case 2:
+			case 10:
+			case 20:
 			default:
 				move = Random();
 		}

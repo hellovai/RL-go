@@ -29,6 +29,7 @@ class Agent {
 	
 	//types of moves
 	Coor Random();
+	Coor Heuristic();
 	Coor UCTSearch ();
 	Node* Simulate( );
 	vector<TreeStruct> SimTree(Node* prev);

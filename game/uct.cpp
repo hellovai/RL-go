@@ -10,6 +10,7 @@
 #include "node.h"
 #include "uct.h"
 
+using namespace std;
 //UCT
 UCT::UCT(int bsize, bool dbg) {
 	debug = dbg;
@@ -65,7 +66,7 @@ Node* UCT::Search(Item** board) {
 		Node* curr = searchlist.front();
 		if(curr->Compare(board) != -1)
 			return curr;
-		for( int i = 0; i < 82; i++ ) {
+		for( int i = 0; i < boardsize*boardsize+1; i++ ) {
 			Node* next = curr->Select(i);
 			if(next != NULL) {
 				if( find(idlist.begin(), idlist.end(), next->id) != idlist.end() ) {
@@ -79,40 +80,139 @@ Node* UCT::Search(Item** board) {
 	return NULL;
 }
 
-void UCT::UCT_output(){
-	ofstream myfile; 
-	myfile.open("UCT_Tree");
-	myfile<<size<<endl;
-	myfile<<boardsize<<endl;
-	UCT_Write(root,myfile);
+void UCT::UCT_Output(string filename) {
+	string name = filename + "_connect.dat";
+	oconnection.open(name.c_str());
+	name = filename + "_board.dat";
+	oboard.open(name.c_str());
+	name = filename + ".cfg";
+	oconfig.open(name.c_str());
+	oconfig<<size<<endl;
+	oconfig<<boardsize<<endl;
+	oconfig.close();
+
+	queue<Node *> nodelist;
+	nodelist.push(root);
+	bool* idlist = new bool[size];
+	for(int i = 0; i<size; i++)
+		idlist[i] = false;
+
+	idlist[root->id] = true;
+	while(!nodelist.empty()) {
+		Node* curr = nodelist.front();
+		UCT_Write_Connect(curr);
+		if ( curr->id % 2 == 0 ) 
+			UCT_Write_Board(curr); //so we dont waste space writing two boards that are the same
+
+		for( int i = 0; i < boardsize*boardsize+1; i++ ) {
+			Node* next = curr->Select(i);
+			if(next != NULL) {
+				if( !idlist[next->id] ) {
+					nodelist.push(next);
+					idlist[next->id] = true;
+				}
+			}
+		}
+		nodelist.pop();
+	}
+	oconnection.close();
+	oboard.close();
 }
 
-void UCT::UCT_Write(Node* current, ofstream myfile){
+void UCT::UCT_Write_Board(Node* current)
+{
+	int i, j;
+	oboard << current->id<<endl;
+	oboard << current->getVisit() << endl;
+	oboard << current->Select(boardsize*boardsize)->getVisit() << endl;
+	for (i=0; i<boardsize; i++) {
+		for (j=0; j<boardsize; j++)
+			oboard << current->board[i][j] << " ";
+		oboard<<endl;
+	}
+}
+void UCT::UCT_Write_Connect(Node* current){
 	if (current == NULL)
 		return;
 	int i, j;
-	for (i=0; i<boardsize; i++) {
-		for (j=0; j<boardsize; j++){
-			myfile << current->board[i][j];
-			if (j==boardsize-1)
-				myfile<<endl;
+	for (i=0; i<=boardsize*boardsize;i++){
+
+		if (current->Select(i) != NULL)
+		{		
+			oconnection << current->id << " ";
+			oconnection << i << " ";
+			oconnection << current->Select(i)->id<<" ";
+			oconnection << current->getVisit(i)<<" ";
+			oconnection << current->getValue(i)<<" ";
+			oconnection << current->getAMAFVisit(i)<<" ";
+			oconnection << current->getAMAFValue(i)<<endl;
 		}
 	}
-	myfile << current->visit<<endl;
-	myfile << current->id<<endl;
-	for (i=0; i<=boardsize*boardsize;i++){
-		myfile << current->visit<<endl;
-		myfile <<amafvisit<<endl;
-		myfile <<value<<endl;
-		myfile <<amafvalue<<endl;
-		if (next==NULL)
-			myfile<<-1<<endl;
-		else
-			myfile<<current
+}
+
+void UCT::UCT_Load(string filename){
+	string name = filename + ".cfg";
+	iconfig.open(name.c_str());
+	if (iconfig)
+	{
+		iconfig >> size >> boardsize;
+		iconfig.close();
+	}
 	
+	name = filename + "_connect.dat";
+	iconnection.open(name.c_str());
+
+	Node **tree_array=new Node *[size];
+	for(int i = 0; i<size; i++) {
+		tree_array[i] = new Node(i, boardsize);
+	}
+	root = tree_array[0];
+	if (iconnection) {
+		while(!iconnection.eof()) {
+			int id, action, next, visit, amafvisit;
+			double value, amafvalue;
+			iconnection >>  id >> action >> next >> visit >> value >> amafvisit >> amafvalue;
+			tree_array[id]->Load(action, tree_array[next], visit, value, amafvisit, amafvalue);
+		}
+		iconnection.close();
+	}
+	name = filename + "_board.dat";
+	iboard.open(name.c_str());
+	if (iboard) {
+		for(int k = 0; k <size / 2 ; k++) {
+			int id, visit, nextvisit;
+			iboard >> id >> visit >> nextvisit;
+			tree_array[id]->setVisit(visit);
+			tree_array[id+1]->setVisit(nextvisit);
+			int ** temp_board = new int*[boardsize];
+			for(int i = 0; i<boardsize; i++) {
+				temp_board[i] = new int[boardsize];
+				for(int j = 0; j<boardsize; j++) {
+					iboard >> temp_board[i][j];
+				}
+			}
+			tree_array[id]->setBoard(temp_board);
+			tree_array[id+1]->setBoard(temp_board);
+		}
+		iboard.close();
+	}
+}
 
 
 
-	
 
 //Private Functions
+string UCT::GetCharPlayer(int num) {
+	switch(num)
+	{
+		case 1: return "\u25A0";
+		case -1: return "\u25A1";
+		default: return " ";
+	}
+}
+
+int UCT::GetIntPlayer(string num) {
+	if( num.compare("\u25A0") == 0 ) return 1;
+	else if ( num.compare("\u25A0") == 0 ) return -1;
+	return 0;
+}

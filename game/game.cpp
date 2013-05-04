@@ -384,9 +384,8 @@ int Game::BlackWin() {
         }
     black += (999-white_Count)-boardwhite;
     white += (999-black_Count)-boardblack;
-    if( black > white ) return 1;       //win
-    else if( black == white ) return 0; //tie
-    else return -1;                     //lose
+    
+    return black - white;
 }
 
 int Game::bonus( ) {

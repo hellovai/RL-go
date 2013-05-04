@@ -10,6 +10,20 @@
 #include "node.h"
 
 //Node 
+Node::Node(int itemid, int currsize) {
+	debug = false;
+	id = itemid;
+	visit = 0;
+	boardsize = currsize;
+	board = new int*[boardsize];
+	for(int i=0; i<boardsize; i++) {
+		board[i] = new int[boardsize];
+		for (int j = 0; j < boardsize; j++)
+			board[i][j] = 0;
+	}
+	action = new Actiondata[boardsize*boardsize+1];
+}
+
 Node::Node(int itemid, Item** currentBoard, int currsize) {
 	debug = false;
 	id = itemid;
@@ -304,4 +318,51 @@ string Node::GetCharPlayer(int num) {
 		case -1: return "\u25A1";
 		default: return " ";
 	}
+}
+
+
+//for read and write access
+int Node::getVisit() 
+{
+	return visit;
+}
+
+int Node::getVisit(int i)
+{
+	return action[i].visit;
+}
+int Node::getAMAFVisit(int i )
+{
+	return action[i].amafvisit;
+}
+double Node::getValue(int i )
+{
+	return action[i].value;
+}
+
+double Node::getAMAFValue(int i)
+{
+	return action[i].amafvalue;
+}
+
+void Node::Load(int action_rank, Node* next, int visit, double value, int amafvisit, double amafvalue)
+{
+	action[action_rank].visit = visit;
+	action[action_rank].value = value;
+	action[action_rank].amafvisit = amafvisit;
+	action[action_rank].amafvalue = amafvalue;
+	action[action_rank].next = next;
+
+}
+
+void Node::setBoard(int** board_temp)
+{
+	for (int i = 0; i<boardsize; i++)
+		for (int j=0; j<boardsize; j++)
+			board[i][j]=board_temp[i][j];
+}
+	
+void Node::setVisit(int visit_temp)
+{
+	visit=visit_temp;
 }
