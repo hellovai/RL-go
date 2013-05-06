@@ -178,7 +178,7 @@ int main (int argc, char* argv[]) {
 				cout<<"Random";
 		}
 		cout<<endl;
-		if(p1type == 1 || p1type == 2) cout<<"\tLevel:\t\t"<<p1level<<endl;
+		if(isUCT(p1type)) cout<<"\tLevel:\t\t"<<p1level<<endl<<"\tC-Var:\t\t"<<p1c<<endl;
 	}
 	cout<<"\n\tPlayer 2:\t"<<(c2 ? "Agent" : "Human")<<endl;
 	if(c2) {
@@ -210,7 +210,7 @@ int main (int argc, char* argv[]) {
 				cout<<"Random";
 		}
 		cout<<endl;
-		if(p2type == 1 || p2type == 2) cout<<"\tLevel:\t\t"<<p2level<<endl;
+		if(isUCT(p2type)) cout<<"\tLevel:\t\t"<<p2level<<endl<<"\tC-Var:\t\t"<<p2c<<endl;
 	}
 	if(c1 && c2)
 		cout<<"\n\tSelfplay:\t"<<(selfplay ? "Enabled" : "Disabled")<<endl;
@@ -221,30 +221,36 @@ int main (int argc, char* argv[]) {
 		cout<<"\n\tSecond Tree:\t"<<tree2out<<endl;
 
 	tboardsize = boardsize;
+	//init variables
 	Game* game = new Game(boardsize);
-	UCT* gametree = new UCT(boardsize, debug);
+	UCT* gametree = new UCT(boardsize, debug), gametree2 = NULL;
+	Agent* p1, p2;
+	game->setDebug(false);
+
 	if(loadone.length() != 0)
 		gametree->UCT_Load(loadone);
-	UCT* gametree2 = new UCT(boardsize, debug);
-	Agent* p1 = new Agent(game, gametree, p1c);
-	Agent* p2;
-	if(selfplay){ 
-		if(loadtwo.length() != 0)
-			gametree->UCT_Load(loadtwo);
-		p2 = new Agent(game, gametree, p2c);
-	} else {
-		if(loadtwo.length() != 0)
-			gametree2->UCT_Load(loadtwo);
-		p2 = new Agent(game, gametree2, p2c);
+	if(c1) {
+		p1 = new Agent(game, gametree, p1c);
+		p1->setDebug(debug);
+		p1->setType(p1type);
+		p1->setLevel(p1level);
 	}
-	game->setDebug(false);
-	p1->setDebug(debug);
-	p2->setDebug(debug);
+	if(c2) {
+		if(selfplay){ 
+			if(loadtwo.length() != 0)
+				gametree->UCT_Load(loadtwo);
+			p2 = new Agent(game, gametree, p2c);
+		} else {
+			gametree2 = new UCT(boardsize, debug);
+			if(loadtwo.length() != 0)
+				gametree2->UCT_Load(loadtwo);
+			p2 = new Agent(game, gametree2, p2c);
+		}
+		p2->setDebug(debug);
+		p2->setType(p2type);
+		p2->setLevel(p2level);
+	}
 	
-	p1->setType(p1type);
-	p2->setType(p2type);
-	p1->setLevel(p1level);
-	p2->setLevel(p2level);
 	ofstream myfile;
 	myfile.open(output.c_str());
 	int blackwin = 0, whitewin = 0;
@@ -260,7 +266,6 @@ int main (int argc, char* argv[]) {
 			//if(debug || pause) cin.ignore();
 			//play game
 			Coor move(-1,-1);
-			
 			// alternate moves once agent is ready
 			int checker = 0;
 			do {
@@ -285,7 +290,6 @@ int main (int argc, char* argv[]) {
 				if(debug) cout<<"While Loop: "<<move.x<<","<<move.y<<endl;
 				checker ++;
 			} while(!game->ValidMove(move));
-
 			game->Move(move);
 		}
 		//display result
@@ -299,12 +303,13 @@ int main (int argc, char* argv[]) {
 		}
 	}
 	myfile.close();
-	if(treeout.length() != 0)
+	if(isUCT(p1type) && treeout.length() != 0)
 		gametree->UCT_Output(treeout);
-	if(tree2out.length() != 0 && !selfplay)
-		gametree2->UCT_Output(tree2out);
-	if(tree2out.length() != 0 && selfplay)
+	if(isUCT(p2type) && tree2out.length() != 0 && selfplay && treeout.length() == 0)
 		gametree->UCT_Output(tree2out);
+	else if(isUCT(p2type) && tree2out.length() != 0 && !selfplay)
+		gametree2->UCT_Output(tree2out);
+
 	if(!selfplay && (p2type == 1 || p2type == 2)) cout<<"White Tree size: "<<gametree2->Size()<<endl<<"Black ";
 	cout<<"Tree size: "<<gametree->Size()<<endl;
 	cout<<"Black Win: "<<blackwin<<endl;
@@ -320,6 +325,7 @@ void usage_err(string var) {
 	cout<<"\t-board <int>\t-- Changes Boardsize"<<endl;
 	cout<<"\t-c1\t\t-- Enable Agent Player 1"<<endl;
 	cout<<"\t-c2\t\t-- Enable Agent Player 2"<<endl;
+	cout<<"\t-dump <file>\t-- output file stater for tree"<<endl;
 	cout<<"\t-cvar <double>\t-- Set c for UCT"<<endl;
 	cout<<"\t-debug\t\t-- Show details of learning"<<endl;
 	cout<<"\t-h\t\t-- Displays this menu"<<endl;
@@ -327,7 +333,7 @@ void usage_err(string var) {
 	cout<<"\t-p\t\t-- Display board after every turn"<<endl;
 	cout<<"\t-score\t-- Displays score at the end of game"<<endl;
 	cout<<"\t-selfoff\t-- Agents use two different trees"<<endl;
-	cout<<"\t-type <int>\t-- 0 Random\n\t\t\t-- 1 UCT Vanilla"<<endl;
+	cout<<"\t-type <int>\t-- 0 Random\n\t\t\t-- 3 Heuristic\n\t\t\t-- 10 UCT Vanilla\n\t\t\t-- 13 UCT Heuristic\n\t\t\t-- 20 UCT-Rave Vanilla\n\t\t\t-- 23 UCT-Rave Heuristic"<<endl;
 	exit(0);
 }
 
@@ -374,4 +380,8 @@ Coor mapRotate(Coor data, int rotater) {
 				data = Coor( x, y); break;
 		}
 		return data;
+}
+
+bool isUCT(int type) {
+	return (type == 1 || type == 10 || type == 13 || type == 2 || type == 20 || type == 23);
 }

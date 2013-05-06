@@ -15,6 +15,7 @@
 using namespace std;
 
 void usage_err(string );
+bool isUCT(int );
 
 typedef struct treestruct TreeStruct;
 typedef struct coorStruct Coor;
