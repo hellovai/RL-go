@@ -1,17 +1,17 @@
 #!/bin/bash
-
+outputfile="out5.dat"
 #number of games
-game=10
+game=100
 #configuration
 BasicBasic=false
 BasicUct=false
 UctUct=false
-UctBasic=false
+UctBasic=true
 #level associated
 blacklevel=(1 5 10 25 50 82 100)
-blacklist=(1 3 10 13 20 23)
-whitelevel=(1 5 10 25 50 82 100)
-whitelist=(1 3 10 13 20 23)
+blacklist=(10 13 20 23)
+whitelevel=()
+whitelist=(1 3)
 
 if $UctUct ; then
 	#uct vs uct

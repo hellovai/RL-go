@@ -84,8 +84,15 @@ int Node::Compare(Item** toCompare) {
 		Rotate(--rotater, newboard);
 	}
 	if(!Same(newboard)) {
+		for (int i = 0; i < boardsize; i++)
+	  		delete[]newboard[i];
+		delete[]newboard;
 		return -1;
-	}
+	}		
+	for (int i = 0; i < boardsize; i++)
+  		delete[]newboard[i];
+	delete[]newboard;
+	
 	return rotater;
 }
 

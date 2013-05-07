@@ -223,8 +223,8 @@ int main (int argc, char* argv[]) {
 	tboardsize = boardsize;
 	//init variables
 	Game* game = new Game(boardsize);
-	UCT* gametree = new UCT(boardsize, debug), gametree2 = NULL;
-	Agent* p1, p2;
+	UCT* gametree = new UCT(boardsize, debug), *gametree2 = NULL;
+	Agent* p1, *p2;
 	game->setDebug(false);
 
 	if(loadone.length() != 0)
@@ -295,7 +295,7 @@ int main (int argc, char* argv[]) {
 		//display result
 		if(score || debug || pause) game->Score();
 		int result = game->BlackWin();
-		myfile<<result<<endl;
+		myfile<<g<<" "<<result<<" "<<game->Lenght()<<endl;
 		if(result < 0) {
 			whitewin++;
 		} else if (result > 0) {

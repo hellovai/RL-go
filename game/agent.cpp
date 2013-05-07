@@ -72,22 +72,26 @@ Coor Agent::Heuristic() {
 	vector<int> score;
 	// if(debug) cout<<"starting board"<<endl;	
 	// if(debug) cout<<"Moves to catch up "<<history.size()<<endl;	
-	Game* gametemp = new Game(game->Boardsize());
-	if(debug) cout<<"starting board"<<endl;	
-	for(int i = 0; i < (int) game->History().size(); i++) {
-		gametemp->ValidMove(game->History()[i]);
-		gametemp->Move(game->History()[i]);
-	}	
+	Game* gametemp = new Game(game);
 	// if(debug) cout<<"initialized board"<<endl;	
-	for(int j = 0; j < (int) moveData.size(); j++) {	
+	for(int j = 0; j < (int) moveData.size(); j++) {
 		//if(debug) cout<<"Trial number: "<<j<<endl;	
 		gametemp->ValidMove(moveData[j]);
 		gametemp->Move(moveData[j]);
-		score.push_back(gametemp->BlackWin()*(gametemp->Status() ? 2 : 1));
+		int result = gametemp->BlackWin();
+		score.push_back(result);
+		//score.push_back(result * (gametemp->Status() ? ( (gametemp->Turn() == -1 && result > 0) || (gametemp->Turn() == 1 && result < 0) ? 1 : 1) : 1));
+		// if(gametemp->Status()) {
+		// 	gametemp->Print();
+		// 	cout<<"Move: "<<moveData[j].x<<" "<<moveData[j].y <<" GameStatus: "<<gametemp->Status()<<" "<<score[score.size()-1]<<endl;
+		// 	cin.ignore();
+		// }
 		gametemp->Undo();
-		//if(debug) gametemp->Print();
 		//if(debug) cout<<"Score of move: "<<moveData[j].x<<" "<<moveData[j].y<<" "<<gametemp->BlackWin()<<endl;
 	}
+	// for(int i = 0; i < (int) score.size(); i++) {
+	// 	cout<<"Move: "<<moveData[j].x<<" "<<moveData[j].y <<" GameStatus: "<<gametemp->Status()<<" "<<score[score.size()-1]<<endl;
+	// }
 	int maxscore = score[0];
 	vector<int> index (1, 0);
 	for(int i = 1; i < (int) score.size(); i++) {
@@ -102,6 +106,7 @@ Coor Agent::Heuristic() {
 		} else if (score[i] == maxscore)
 			index.push_back(i);
 	}
+	delete gametemp;
 	//if(debug) cout<<"Done Simulating!"<<endl;
 	return moveData[index[rand() % index.size()]];
 }
@@ -141,9 +146,9 @@ Coor Agent::UCTSearch () {
 
 Node* Agent::RaveSimulate( ) {
 	if(debug) cout<<"Starting Rave Simulate"<<endl;
-	Game* holder = game;
+	Game* holder = game, *temp = new Game(holder->Boardsize());
 	vector<Coor> moveHistory = holder->History();
-	game = new Game(holder->Boardsize());
+	game = temp;
 	//set board to current position
 	game->Reset();
 	Node* start = UCTtree->Root();
@@ -181,6 +186,8 @@ Node* Agent::RaveSimulate( ) {
 	RaveBackUp(T, preferred, z);
 	if(debug) cout<<(z == 1 ? "Black wins!" : (z == 0 ? "Tie!" : "White Wins!"))<<endl;
 	game = holder;
+
+	delete temp;
 	return relaventpos;
 }
 Node* Agent::Simulate( ) {
