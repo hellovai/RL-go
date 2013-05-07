@@ -150,7 +150,7 @@ void UCT::UCT_Write_Connect(Node* current){
 	}
 }
 
-void UCT::UCT_Load(string filename){
+void UCT::UCT_Load(string filename) {
 	string name = filename + ".cfg";
 	iconfig.open(name.c_str());
 	if (iconfig)
@@ -163,9 +163,8 @@ void UCT::UCT_Load(string filename){
 	iconnection.open(name.c_str());
 
 	Node **tree_array=new Node *[size];
-	for(int i = 0; i<size; i++) {
+	for(int i = 0; i<size; i++)
 		tree_array[i] = new Node(i, boardsize);
-	}
 	root = tree_array[0];
 	if (iconnection) {
 		while(!iconnection.eof()) {
@@ -178,24 +177,27 @@ void UCT::UCT_Load(string filename){
 	}
 	name = filename + "_board.dat";
 	iboard.open(name.c_str());
+	int ** temp_board = new int*[boardsize];
+	for(int i = 0; i<boardsize; i++)
+		temp_board[i] = new int[boardsize];
 	if (iboard) {
 		for(int k = 0; k <size / 2 ; k++) {
 			int id, visit, nextvisit;
 			iboard >> id >> visit >> nextvisit;
 			tree_array[id]->setVisit(visit);
 			tree_array[id+1]->setVisit(nextvisit);
-			int ** temp_board = new int*[boardsize];
-			for(int i = 0; i<boardsize; i++) {
-				temp_board[i] = new int[boardsize];
-				for(int j = 0; j<boardsize; j++) {
+			for(int i = 0; i<boardsize; i++)
+				for(int j = 0; j<boardsize; j++)
 					iboard >> temp_board[i][j];
-				}
-			}
 			tree_array[id]->setBoard(temp_board);
 			tree_array[id+1]->setBoard(temp_board);
 		}
 		iboard.close();
-	}
+	}	
+	for (int i = 0; i < boardsize; i++)
+  		delete[]temp_board[i];
+	delete[]temp_board;
+	delete[]tree_array;
 }
 
 

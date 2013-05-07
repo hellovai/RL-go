@@ -56,22 +56,31 @@ class Game {
 	void printGroup();
 public:
 	Game(int );
+	Game(Game* );
+	~Game();
 	void Print();
 	void Reset();
 	bool Status() { return my_status; };	//checks if finished
 	int Turn() { return current_player; };	//returns current player
-	Item **board() {return currboard;};
+	Item **board() {return currboard; };
 	Item **previous() { return prevboard; };
+	Item **prevprevious() { return prevprevboard; };
 	int Boardsize() { return BOARDSIZE; };
 	void setDebug( bool x ) {debug = x;};
 	int Lenght() { return moves; };
+	vector<Coor> History() { return moveList; };
+    bool Pass() { return pass; };
+    bool VPass() { return validpass; };
+    bool GUndo() { return undo; };
+    bool VUndo() { return validundo; };
+    int BCount() { return black_Count; };
+    int WCount() { return white_Count; };
 	
 	bool ValidMove(Coor );					// checks if the coordinate is a valid move
 	void Move(Coor );							// makes a move if valid
 	
 	void Score();							// uses area()
 	int BlackWin();
-	vector<Coor> History() { return moveList; };
 	void printPrev();
 	void Undo();
 };
