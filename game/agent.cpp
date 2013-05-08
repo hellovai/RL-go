@@ -86,8 +86,8 @@ Coor Agent::Heuristic() {
 		// 	cout<<"Move: "<<moveData[j].x<<" "<<moveData[j].y <<" GameStatus: "<<gametemp->Status()<<" "<<score[score.size()-1]<<endl;
 		// 	cin.ignore();
 		// }
+		if(debug) cout<<"Score of move: "<<moveData[j].x<<" "<<moveData[j].y<<" "<<gametemp->BlackWin()<<endl;
 		gametemp->Undo();
-		//if(debug) cout<<"Score of move: "<<moveData[j].x<<" "<<moveData[j].y<<" "<<gametemp->BlackWin()<<endl;
 	}
 	// for(int i = 0; i < (int) score.size(); i++) {
 	// 	cout<<"Move: "<<moveData[j].x<<" "<<moveData[j].y <<" GameStatus: "<<gametemp->Status()<<" "<<score[score.size()-1]<<endl;
@@ -99,7 +99,7 @@ Coor Agent::Heuristic() {
 			maxscore = score[i];
 			index.clear();
 			index.push_back(i);
-		} if(game->Turn() == 1 && score[i] < maxscore) {
+		} else if(game->Turn() == 1 && score[i] < maxscore) {
 			maxscore = score[i];
 			index.clear();
 			index.push_back(i);

@@ -8,8 +8,8 @@ BasicUct=false
 UctUct=false
 UctBasic=true
 #level associated
-blacklevel=(1 5 10 25 50 82 100)
-blacklist=(10 13 20 23)
+blacklevel=(1)
+blacklist=(10)
 whitelevel=()
 whitelist=(1 3)
 
@@ -23,7 +23,7 @@ if $UctUct ; then
 			do
 				for wtype in ${whitelist[*]}
 				do
-					./go -c1 -type $btype -level $blevel -dump results/tree+black-$blevel-$btype+white-$wlevel-$wtype -c2 -type $wtype -level $wlevel -dump results/tree+white-$wlevel-$wtype+black-$blevel-$btype -g $game -output results/result+black-$blevel-$btype+white-$wlevel-$wtype.dat >> $outputfile
+					./go -c1 -type $btype -level $blevel -dump results/tree+black-$blevel-$btype+white-$wlevel-$wtype -c2 -type $wtype -level $wlevel -dump results/tree+white-$wlevel-$wtype+black-$blevel-$btype -g $game -output results/result+black-$blevel-$btype+white-$wlevel-$wtype.dat 
 				done
 			done
 		done
@@ -36,7 +36,7 @@ elif $UctBasic; then
 		do
 			for wtype in ${whitelist[*]}
 			do
-				./go -c1 -type $btype -level $blevel -dump results/tree+black-$blevel-$btype+white-$wtype -c2 -type $wtype -g $game -output results/result+black-$blevel-$btype+white-$wtype.dat    >> $outputfile
+				screen -d -m  ./go -c1 -type $btype -level $blevel -c2 -type $wtype -g $game -output results/result+black-$blevel-$btype+white-$wtype.dat
 			done
 		done
 	done
@@ -48,7 +48,7 @@ elif $BasicUct; then
 		do
 			for wtype in ${whitelist[*]}
 			do
-				./go -c1 -type $btype -c2 -type $wtype -level $wlevel -dump results/tree+white-$wlevel-$wtype+black-$btype -g $game -output results/result+black-$btype+white-$wlevel-$wtype.dat  >> $outputfile
+				screen -d -m  ./go -c1 -type $btype -c2 -type $wtype -level $wlevel -dump results/tree+white-$wlevel-$wtype+black-$btype -g $game -output results/result+black-$btype+white-$wlevel-$wtype.dat  
 			done
 		done
 	done
@@ -58,7 +58,7 @@ elif $BasicBasic ; then
 	do
 		for wtype in ${whitelist[*]}
 		do
-			./go -c1 -type $btype -c2 -type $wtype -g $game -output results/result+black-$btype+white-$wtype.dat >> $outputfile
+			./go -c1 -type $btype -c2 -type $wtype -g $game -output results/result+black-$btype+white-$wtype.dat 
 		done
 	done
 fi

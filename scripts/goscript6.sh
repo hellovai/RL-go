@@ -9,9 +9,9 @@ UctUct=false
 UctBasic=false
 #level associated
 blacklevel=()
-blacklist=(1 3)
-whitelevel=(1 5 10 25 50 82 100)
-whitelist=(10 13 20 23)
+blacklist=(1)
+whitelevel=(1)
+whitelist=(10)
 
 if $UctUct ; then
 	#uct vs uct
@@ -48,7 +48,7 @@ elif $BasicUct; then
 		do
 			for wtype in ${whitelist[*]}
 			do
-				./go -c1 -type $btype -c2 -type $wtype -level $wlevel -dump results/tree+white-$wlevel-$wtype+black-$btype -g $game -output results/result+black-$btype+white-$wlevel-$wtype.dat  >> $outputfile
+				screen -d -m  ./go -c1 -type $btype -c2 -type $wtype -level $wlevel -g $game -output results/result+black-$btype+white-$wlevel-$wtype.dat  >> $outputfile
 			done
 		done
 	done

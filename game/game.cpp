@@ -368,6 +368,11 @@ void Game::subeat(Coor position) {
 void Game::area() {
 	grpVector.clear();
 	grpCtr = 0;
+	for( int i = 0; i < BOARDSIZE; i++)
+		for(int j = 0; j<BOARDSIZE; j++) {
+			futureboard[i][j].val = currboard[i][j].val;
+			futureboard[i][j].visit = false;
+	}
 	for( int i=0; i<BOARDSIZE; i++ )
 		for(int j = 0; j<BOARDSIZE; j++)
 			if(futureboard[i][j].group == 0 && futureboard[i][j].val == 0) {
@@ -467,7 +472,6 @@ void Game::Score( ) {
 	cout<<"Black Used: "<<PEICEMAX-black_Count<<endl;
 	cout<<"White Used: "<<PEICEMAX-white_Count<<endl;
 	printGroup();
-
 }
 
 int Game::BlackWin() {   
