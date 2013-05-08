@@ -1,18 +1,20 @@
 #!/bin/bash
-outputfile="out1.dat"
+outputfile="selfout.dat"
 #number of games
 game=100
 #configuration
 BasicBasic=false
 BasicUct=false
-UctUct=true
+UctUct=false
 UctBasic=false
+UctSelf=true
 #level associated
 blacklevel=(25)
 blacklist=(10 13 20 23)
 whitelevel=(50 82 100)
 whitelist=(10 13 20 23)
-
+selflevel=(1 5 10 25)
+selftype=(10 13 20 23)
 if $UctUct ; then
 	#uct vs uct
 	for blevel in ${blacklevel[*]}
@@ -59,6 +61,16 @@ elif $BasicBasic ; then
 		for wtype in ${whitelist[*]}
 		do
 			./go -c1 -type $btype -c2 -type $wtype -g $game -output results/result+black-$btype+white-$wtype.dat >> $outputfile
+		done
+	done
+fi
+elif $UctSelf ; then
+	#basic vs basic
+	for type in ${selftype[*]}
+	do
+		for level in ${selflevel[*]}
+		do
+			./go -c1 -type $type -level $level -c2 -type $type -level $level -g $game -output results/result+black-$level-$type+white-$level-$type.dat >> $outputfile
 		done
 	done
 fi
