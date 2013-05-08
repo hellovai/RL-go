@@ -3,8 +3,8 @@
 cd results;
 rm black/*
 #gets easy result data
-array=`wc -l result+* | grep "100 " | awk -F "100 " '{print $2}'`
-for i in $array
+array=`wc -l ./*.dat | grep "100 " | awk -F "100 " '{print $2}'`
+for i in  $array
 do 
 	ctr=0
 	while read line
@@ -25,6 +25,8 @@ do
 	set term postscript
 	set output \"./plot/graphs/$i.ps\"
 	plot x with lines linecolor rgb 'blue' lt 1 notitle, x*0.5 with lines linecolor rgb 'blue' lt 1 notitle, './black/$i' with lines linecolor rgb 'red' lt 1 title '$title'" | gnuplot 
+	convert -rotate 90 -flatten plot/graphs/$i.ps ~/Desktop/data/$i.png
+	echo "~/Desktop/data/$i.png"
 done
 
 cd ../
