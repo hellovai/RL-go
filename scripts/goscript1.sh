@@ -70,7 +70,7 @@ elif $UctSelf ; then
 	do
 		for level in ${selflevel[*]}
 		do
-			./go -c1 -type $type -level $level -c2 -type $type -level $level -g $game -output results/result+black-$level-$type+white-$level-$type.dat >> $outputfile
+			screen -R go-$level-$type './go -c1 -type $type -level $level -c2 -type $type -level $level -g $game -output results/result+black-$level-$type+white-$level-$type.dat'
 		done
 	done
 fi
