@@ -7,13 +7,14 @@ BasicBasic=false
 BasicUct=false
 UctUct=false
 UctBasic=false
-UctSelf=true
+UctSelf=false
+UctDif=true
 #level associated
 blacklevel=(25)
 blacklist=(10 13 20 23)
 whitelevel=(50 82 100)
 whitelist=(10 13 20 23)
-selflevel=(1 5 10 25)
+selflevel=(1 5)
 selftype=(10 13 20 23)
 if $UctUct ; then
 	#uct vs uct
@@ -63,14 +64,28 @@ elif $BasicBasic ; then
 			./go -c1 -type $btype -c2 -type $wtype -g $game -output results/result+black-$btype+white-$wtype.dat >> $outputfile
 		done
 	done
-fi
 elif $UctSelf ; then
 	#basic vs basic
 	for type in ${selftype[*]}
 	do
 		for level in ${selflevel[*]}
 		do
-			screen -R go-$level-$type './go -c1 -type $type -level $level -c2 -type $type -level $level -g $game -output results/result+black-$level-$type+white-$level-$type.dat'
+			screen -d -m  ./go -c1 -type $type -level $level -c2 -type $type -level $level -g $game -output results/result+black-$level-$type+white-$level-$type.dat
+		done
+	done
+elif $UctDif ; then
+	#basic vs basic
+	for btype in ${selftype[*]}
+	do
+		for wtype in ${selftype[*]}
+		do
+			if [[ $btype -ne $wtype ]];
+			then
+				for level in ${selflevel[*]}
+				do
+					screen -d -m  ./go -c1 -type $btype -level $level -c2 -type $wtype -level $level -g $game -output results/result+black-$level-$btype+white-$level-$wtype.dat
+				done
+			fi
 		done
 	done
 fi
