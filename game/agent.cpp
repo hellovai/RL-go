@@ -31,6 +31,7 @@ Coor Agent::Move( ) {
 		case 1: //vanilla - random
 		case 10: //vanilla - random
 		case 13: //vanilla - heuristic
+		case 11:
 			return UCTSearch();
 		case 2:
 		case 20: //rave - heuristic
@@ -228,6 +229,7 @@ Node* Agent::Simulate( ) {
 
 	vector<TreeStruct> preferred = SimTree(start); // returns s_0 -> s_t
 	int z = Default();
+	if(type == 11 && z != 0) z /= abs(z);
 	BackUp(preferred, z);
 	if(debug) cout<<(z == 1 ? "Black wins!" : (z == 0 ? "Tie!" : "White Wins!"))<<endl;
 	game = holder;

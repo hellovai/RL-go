@@ -3,17 +3,17 @@ outputfile="selfout.dat"
 #number of games
 game=100
 #configuration
-BasicBasic=true
-BasicUct=false
+BasicBasic=false
+BasicUct=true
 UctUct=false
 UctBasic=false
 UctSelf=false
 UctDif=false
 #level associated
-blacklevel=(1 5)
-blacklist=(0 3)
-whitelevel=()
-whitelist=(0 3)
+blacklevel=()
+blacklist=(0)
+whitelevel=(5)
+whitelist=(10 13 20 23)
 selflevel=(1 5)
 selftype=(10 13 20 23)
 if $UctUct ; then
@@ -51,7 +51,7 @@ elif $BasicUct; then
 		do
 			for wtype in ${whitelist[*]}
 			do
-				./go -c1 -type $btype -c2 -type $wtype -level $wlevel -dump results/tree+white-$wlevel-$wtype+black-$btype -g $game -output results/result+black-$btype+white-$wlevel-$wtype.dat  >> $outputfile
+				screen -d -m ./go -c1 -type $btype -c2 -type $wtype -level $wlevel -g $game -output results/result+black-$btype+white-$wlevel-$wtype.dat
 			done
 		done
 	done
