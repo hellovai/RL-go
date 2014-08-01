@@ -8,10 +8,10 @@
 #include <iomanip>
 
 typedef enum {
-  TOP,
-  BOT,
-  RIGHT,
-  LEFT,
+  TOP = 1,
+  BOT = 2,
+  RIGHT = 3,
+  LEFT = 4,
   NUM_SIDES,
 } Side;
 
@@ -26,27 +26,29 @@ class Move {
 
   public:
     Move() : pass(true), x(-1), y(-1) {
-      index = pass ? maxMoveSize * maxMoveSize + 1
+      index = pass ? maxMoveSize * maxMoveSize
       : x * maxMoveSize + y;
     }
     explicit Move(Move* curr)
     : x(curr->x), y(curr->y), pass(curr->pass), index(curr->index) {}
     Move(int x_, int y_) : x(x_), y(y_) {
       pass = x < 0 || y < 0;
-      index = pass ? maxMoveSize * maxMoveSize + 1
+      index = pass ? maxMoveSize * maxMoveSize
       : x * maxMoveSize + y;
     }
     explicit Move(int i) : index(i) {
       x = index / maxMoveSize;
       y = index % maxMoveSize;
-      pass = index == maxMoveSize * maxMoveSize + 1;
+      pass = index == maxMoveSize * maxMoveSize;
     }
     ~Move() {}
 
     void setIndex() {
-      index = pass ? maxMoveSize * maxMoveSize + 1
+      index = pass ? maxMoveSize * maxMoveSize
       : x * maxMoveSize + y;
     }
+
+    bool isPass() { return pass; }
 
     bool compare(int i, int j) { return x == i && y == j; }
     bool hasSide(uint8_t side) {
@@ -60,7 +62,7 @@ class Move {
         case LEFT:
         return x != 0;
       }
-      return true;
+      return false;
     }
 
     // TODO(hellovai): add asserts
@@ -69,22 +71,24 @@ class Move {
       Move* next = new Move(this);
       switch (side) {
         case TOP:
-        next->y--;
-        next->index--;
+          next->y--;
+          break;
         case BOT:
-        next->y++;
-        next->index++;
+          next->y++;
+          break;
         case RIGHT:
-        next->x++;
-        next->index += maxMoveSize;
+          next->x++;
+          break;
         case LEFT:
-        next->x--;
-        next->index -= maxMoveSize;
+          next->x--;
+          break;
       }
+      next->setIndex();
       return next;
     }
 
     friend std::ostream& operator<<(std::ostream& os, const Move& m);
     friend std::ostream& operator>>(std::ostream& os, const Move& m);
+    friend bool operator== (const Move &cM1, const Move &cM2);
 };
 #endif

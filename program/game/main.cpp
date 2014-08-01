@@ -9,14 +9,16 @@
 int State::boardSize = 19;
 int Move::maxMoveSize = State::boardSize - 1;
 
-int main() {
+int main(int argc, char* argv[]) {
+  google::InitGoogleLogging(argv[0]);
+
   Game* game = new Game();
   while (!game->isFinished()) {
     game->print();
     Move *move = new Move();
     char x;
     int y;
-    std::cout << "Move: ";
+    std::cout << "Move " << game->turn() << ": ";
     std::cin >> x;
     if (x != 'p' && x != 'P') {
       std::cin >> y;
@@ -24,9 +26,11 @@ int main() {
       move->x = y - 1;
       move->pass = false;
       move->setIndex();
+    } else {
+      move->pass = true;
+      move->setIndex();
     }
     game->makeMove(move);
-    std::cout << "MOVE: " << *move << std::endl;
   }
   return 0;
 }

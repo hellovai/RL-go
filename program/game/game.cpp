@@ -24,10 +24,13 @@ boost::dynamic_bitset<> Game::validMoves() {
 
 bool Game::makeMove(Move* move) {
   if (currState->makeMove(move)) {
+    if (move->isPass() && currState->pass) {
+      finished = true;
+    }
     currState = currState->next;
     return true;
   } else {
-    // LOG(INFO) << "Invalid Move: " << move;
+    LOG(ERROR) << "Invalid Move: " << *move;
     return false;
   }
 }

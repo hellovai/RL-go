@@ -15,6 +15,7 @@ State::State() {
   player = PLAYER_ONE;
   move = nullptr;
   turn = 0;
+  pass = false;
 
   prev = nullptr;
   next = nullptr;
@@ -29,8 +30,20 @@ State::State() {
 // return false if the move is invalid
 // return true if valid move, then create new board as well
 bool State::makeMove(Move* pos) {
+  if (!isEmpty(pos)) {
+    return false;
+  }
+
+  // create next board
+  createNext(pos);
+
+  if (pos->isPass()) {
+    return true;
+  }
+
   // assert liberty is still available
-  int liberty_count = liberty(pos);
+  int liberty_count = next->liberty(pos);
+  LOG(INFO) << "Liberty Test: "<< *pos << " " << liberty_count;
   if (liberty_count == 0) {
     return false;
   }
@@ -39,31 +52,29 @@ bool State::makeMove(Move* pos) {
   // TODO(hellovai): this is probably inefficient
   State* prevptr = prev;
   while (prevptr) {
-    if (prevptr->move == pos)
-      if (validMoves == prevptr->validMoves)
-        if (memcmp(board, prevptr->board,
-                   sizeof(uint8_t) * (State::boardSize)*(State::boardSize))) {
-          // LOG(INFO) << "Move " << pos << " results in previous board condition";
-          return false;
-        }
+    if (next->validMoves == prevptr->validMoves) {
+      if (memcmp(next->board, prevptr->board,
+         sizeof(uint8_t) * (State::boardSize) * (State::boardSize))) {
+        return false;
+      }
+    }
     prevptr = prevptr->prev;
   }
+  LOG(INFO) <<"\tRepeat Test: PASS";
 
   // passed all tests
-  // create next board
-  createNext(pos);
   return true;
 }
 
 // private functions
 void State::setPosition(Move* pos) {
-  board[pos->x][pos->y] = player;
   validMoves.reset(pos->index);
+  board[pos->x][pos->y] = player;
 }
 
 void State::unsetPosition(Move* pos) {
-  board[pos->x][pos->y] = 0;
   validMoves.set(pos->index);
+  board[pos->x][pos->y] = 0;
 }
 
 // only call after asserting that pos is a valid move to make
@@ -72,12 +83,22 @@ void State::createNext(Move* pos) {
     next = new State();
     next->prev = this;
   }
-  std::copy(&board[0][0], &board[Move::maxMoveSize][Move::maxMoveSize],
-            &(next->board[0][0]));
-  next->player = nextPlayer(player);
+
+  for (int i = 0; i < State::boardSize; i++)
+    for (int j = 0; j < State::boardSize; j++)
+      next->board[i][j] = board[i][j];
+
+  next->player = nextPlayer(this->player);
   next->move = pos;
+  next->validMoves = validMoves;
+
+  if (pos->isPass()) {
+    next->pass = true;
+    return;
+  }
+
   next->setPosition(pos);
-  for (int side = 0; side < NUM_SIDES; ++side) {
+  for (int side = TOP; side < NUM_SIDES; ++side) {
     if (pos->hasSide(side)) {
       Move* check = pos->getSide(side);
       if (next->liberty(check, OTHER) == 0) {
@@ -112,15 +133,15 @@ int State::liberty(Move* toCheck, uint8_t type) {
   while (!q.empty()) {
     Move* check = q.front();
     q.pop();
-
     // queue all 4 sides if the current peice
     if (checkPosition(check) == type && !checkSet.test(check->index)) {
       for (int side = TOP; side < NUM_SIDES; ++side)
         if (check->hasSide(side)) {
           q.push(check->getSide(side));
-        } else {
-          liberty++;
         }
+    }
+    if (isEmpty(check)) {
+      liberty++;
     }
     checkSet.set(check->index);
     if (check != toCheck) {
@@ -153,7 +174,6 @@ void State::eat(Move* pos) {
     }
   }
 }
-
 
 std::ostream& operator<<(std::ostream& os, State const& b) {
   // print board

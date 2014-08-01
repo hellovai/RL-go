@@ -19,7 +19,8 @@ class Game {
 
   public:
     Game();
-    ~Game() {};
+    ~Game() {}
+
     void print() {
       std::cout << *currState;
     }

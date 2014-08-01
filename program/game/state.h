@@ -24,6 +24,7 @@ class State {
   // this defines the player who's turn it is, and the most recent move made
   uint8_t player;
   Move* move;
+  bool pass;
   int turn;
   uint8_t** board;
 
@@ -32,24 +33,21 @@ class State {
   State* next;
 
   explicit State();
-  ~State() {};
+  ~State() {}
 
-  bool makeMove(Move*);
+  bool makeMove(Move* pos);
   friend std::ostream& operator<<(std::ostream& os, const State& b);
 
  private:
   // checks if the position is owned by current player, empty, or opponent
   uint8_t checkPosition(Move* pos) { return board[pos->x][pos->y] ^ player; }
-  bool isEmpty(Move* pos) { return board[pos->x][pos->y] == 0; }
+  bool isEmpty(Move* pos) { return validMoves.test(pos->index); }
 
-  void setPosition(Move*);
-  void unsetPosition(Move*);
-  void createNext(Move*);
-  int liberty(Move* pos) {
-    return liberty(pos, SELF);
-  }
-  int liberty(Move* pos, uint8_t type);
-  void eat(Move*);
+  void setPosition(Move* pos);
+  void unsetPosition(Move* pos);
+  void createNext(Move* pos);
+  int liberty(Move* pos, uint8_t type = SELF);
+  void eat(Move* pos);
 };
 
 #endif
