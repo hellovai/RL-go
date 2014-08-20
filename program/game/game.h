@@ -12,6 +12,8 @@ class Game {
   private:
     int debug;
 
+    // TODO(hellovai): scoring functions
+
     // game states
     State *currState;
     State *startState;
@@ -54,5 +56,3 @@ class Game {
 };
 
 #endif
-
-

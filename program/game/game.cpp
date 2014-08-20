@@ -39,7 +39,7 @@ void Game::undo() {
   if (currState->prev) {
     currState = currState->prev;
   } else {
-    // LOG(INFO) << "Undo not available";
+    LOG(INFO) << "Undo not available";
   }
 }
 
@@ -47,6 +47,6 @@ void Game::redo() {
   if (currState->next) {
     currState = currState->next;
   } else {
-    // LOG(INFO) << "Redo not available";
+    LOG(INFO) << "Redo not available";
   }
 }

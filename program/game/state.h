@@ -36,6 +36,7 @@ class State {
   ~State() {}
 
   bool makeMove(Move* pos);
+
   friend std::ostream& operator<<(std::ostream& os, const State& b);
 
  private:

@@ -84,6 +84,7 @@ void State::createNext(Move* pos) {
     next->prev = this;
   }
 
+  // TODO(hellovai): use memcpy
   for (int i = 0; i < State::boardSize; i++)
     for (int j = 0; j < State::boardSize; j++)
       next->board[i][j] = board[i][j];
@@ -140,6 +141,7 @@ int State::liberty(Move* toCheck, uint8_t type) {
           q.push(check->getSide(side));
         }
     }
+    // TODO(hellovai): we should be able to do this without queuing it up
     if (isEmpty(check)) {
       liberty++;
     }

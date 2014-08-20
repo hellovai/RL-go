@@ -6,6 +6,7 @@ std::ostream& operator<<(std::ostream &os, Move const& m) {
   return m.pass ? os << "PASS" : os << static_cast<char>(m.y + 0x41) << m.x + 1;
 }
 
+// TODO(hellovai): why doesn't this work?
 std::istream& operator>>(std::istream &input, Move & m) {
   char x;
   int y;
