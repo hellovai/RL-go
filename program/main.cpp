@@ -1,8 +1,10 @@
 // Copyright 2014 hellovai
 
 #include <gflags/gflags.h>
+#include <glog/logging.h>
+
 #include <iostream>
-#include "game.h"
+#include "game/game.h"
 
 // DEFINE_int32(boardsize, 9, "modify boardsize of the game");
 

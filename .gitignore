@@ -12,11 +12,10 @@
 *.la
 *.a
 
-# Compiled Game
-go
-a.out
 # temporary files
 *~
 *#
-gmon.out
-results/*
+
+# obj dirs
+*/build/*
+*/bin/*
