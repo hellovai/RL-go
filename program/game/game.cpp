@@ -7,6 +7,7 @@ Game::Game() {
   finished = false;
   startState = new State();
   currState = startState;
+  _turn = 1;
 }
 
 void Game::reset() {
@@ -16,10 +17,18 @@ void Game::reset() {
   }
   currState = startState;
   finished = false;
+  _turn = 1;
 }
 
-boost::dynamic_bitset<> Game::validMoves() {
-  return currState->validMoves;
+std::vector<Move> Game::validMoves() {
+  std::vector<Move> v(currState->validMoves.count());
+  int idx = currState->validMoves.find_first();
+  int i = 0;
+  while (idx != boost::dynamic_bitset<>::npos) {
+    v[i++].reset(idx);
+    idx = currState->validMoves.find_next(idx);
+  }
+  return v;
 }
 
 bool Game::makeMove(Move* move) {
@@ -28,25 +37,29 @@ bool Game::makeMove(Move* move) {
       finished = true;
     }
     currState = currState->next;
-    return true;
+    _turn++;
   } else {
-    LOG(ERROR) << "Invalid Move: " << *move;
+    GLOG(LOG(ERROR) << "Invalid Move: " << *move;)
+    delete move;
     return false;
   }
+  return true;
 }
 
 void Game::undo() {
   if (currState->prev) {
     currState = currState->prev;
+    _turn--;
   } else {
-    LOG(INFO) << "Undo not available";
+    GLOG(LOG(ERROR) << "Undo not available";)
   }
 }
 
 void Game::redo() {
   if (currState->next) {
     currState = currState->next;
+    _turn++;
   } else {
-    LOG(INFO) << "Redo not available";
+    GLOG(LOG(ERROR) << "Redo not available";)
   }
 }

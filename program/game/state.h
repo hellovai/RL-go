@@ -2,10 +2,9 @@
 
 #ifndef __STATE_H_INCLUDED__
 #define __STATE_H_INCLUDED__
+#include "../common.h"
 
 #include <boost/dynamic_bitset.hpp>
-
-#include <glog/logging.h>
 #include "move.h"
 
 #define PLAYER_ONE 1
@@ -25,7 +24,6 @@ class State {
   uint8_t player;
   Move* move;
   bool pass;
-  int turn;
   uint8_t** board;
 
   boost::dynamic_bitset<> validMoves;
@@ -33,7 +31,24 @@ class State {
   State* next;
 
   explicit State();
-  ~State() {}
+  ~State() {
+    delete move;
+
+    for (int i = 0; i < boardSize; ++i) {
+      delete[] board[i];
+    }
+    delete[] board;
+
+    if (next) {
+      next->prev = nullptr;
+      delete next;
+    }
+
+    if (prev) {
+      prev->next = nullptr;
+      delete prev;
+    }
+  }
 
   bool makeMove(Move* pos);
 

@@ -2,6 +2,7 @@
 
 #ifndef __MOVE_H_INCLUDED__
 #define __MOVE_H_INCLUDED__
+#include "../common.h"
 
 #include <stdint.h>
 #include <iostream>
@@ -30,7 +31,7 @@ class Move {
       : x * maxMoveSize + y;
     }
     explicit Move(Move* curr)
-    : x(curr->x), y(curr->y), pass(curr->pass), index(curr->index) {}
+        : x(curr->x), y(curr->y), pass(curr->pass), index(curr->index) {}
     Move(int x_, int y_) : x(x_), y(y_) {
       pass = x < 0 || y < 0;
       index = pass ? maxMoveSize * maxMoveSize
@@ -48,6 +49,13 @@ class Move {
       : x * maxMoveSize + y;
     }
 
+    void reset(int i) {
+      index = i;
+      x = index / maxMoveSize;
+      y = index % maxMoveSize;
+      pass = index == maxMoveSize * maxMoveSize;
+    }
+
     bool isPass() { return pass; }
 
     bool compare(int i, int j) { return x == i && y == j; }
@@ -56,9 +64,9 @@ class Move {
         case TOP:
         return y != 0;
         case BOT:
-        return y != maxMoveSize;
+        return y != maxMoveSize - 1;
         case RIGHT:
-        return x != maxMoveSize;
+        return x != maxMoveSize - 1;
         case LEFT:
         return x != 0;
       }
@@ -88,7 +96,7 @@ class Move {
     }
 
     friend std::ostream& operator<<(std::ostream& os, const Move& m);
-    friend std::ostream& operator>>(std::ostream& os, const Move& m);
+    friend std::istream& operator>>(std::istream& os, Move& m);
     friend bool operator== (const Move &cM1, const Move &cM2);
 };
 #endif

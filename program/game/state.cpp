@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <queue>
+#include <memory.h>
 #include "state.h"
 
 uint8_t nextPlayer(uint8_t player) {
@@ -14,16 +15,16 @@ uint8_t nextPlayer(uint8_t player) {
 State::State() {
   player = PLAYER_ONE;
   move = nullptr;
-  turn = 0;
   pass = false;
 
   prev = nullptr;
   next = nullptr;
-  validMoves.resize(Move::maxMoveSize * Move::maxMoveSize + 1);
+  validMoves.resize(State::boardSize * State::boardSize + 1);
   validMoves.set();
   board = new uint8_t* [State::boardSize];
   for (uint8_t i = 0; i < State::boardSize; ++i) {
     board[i] = new uint8_t[State::boardSize];
+    for (int j = 0; j < State::boardSize; ++j) board[i][j] = 0;
   }
 }
 
@@ -43,7 +44,7 @@ bool State::makeMove(Move* pos) {
 
   // assert liberty is still available
   int liberty_count = next->liberty(pos);
-  LOG(INFO) << "Liberty Test: "<< *pos << " " << liberty_count;
+  GLOG(LOG(INFO) << "Liberty Test: " << *pos << " " << liberty_count;)
   if (liberty_count == 0) {
     return false;
   }
@@ -54,13 +55,13 @@ bool State::makeMove(Move* pos) {
   while (prevptr) {
     if (next->validMoves == prevptr->validMoves) {
       if (memcmp(next->board, prevptr->board,
-         sizeof(uint8_t) * (State::boardSize) * (State::boardSize))) {
+                 sizeof(uint8_t) * (State::boardSize) * (State::boardSize))) {
         return false;
       }
     }
     prevptr = prevptr->prev;
   }
-  LOG(INFO) <<"\tRepeat Test: PASS";
+  GLOG(LOG(INFO) << "\tRepeat Test: PASS";)
 
   // passed all tests
   return true;
@@ -86,8 +87,7 @@ void State::createNext(Move* pos) {
 
   // TODO(hellovai): use memcpy
   for (int i = 0; i < State::boardSize; i++)
-    for (int j = 0; j < State::boardSize; j++)
-      next->board[i][j] = board[i][j];
+    for (int j = 0; j < State::boardSize; j++) next->board[i][j] = board[i][j];
 
   next->player = nextPlayer(this->player);
   next->move = pos;
@@ -117,6 +117,10 @@ void State::createNext(Move* pos) {
 //             set empty peices which are liberties with a flag, only do updates
 //                if you make a move which affects pieces which are liberties
 int State::liberty(Move* toCheck, uint8_t type) {
+  boost::dynamic_bitset<> checkSet(State::boardSize * State::boardSize + 1);
+  checkSet.reset();
+  // checkSet.resize(validMoves.size());
+
   // set postion
   bool manualSet = false;
   if (isEmpty(toCheck)) {
@@ -128,9 +132,6 @@ int State::liberty(Move* toCheck, uint8_t type) {
   std::queue<Move*> q;
   q.push(toCheck);
   int liberty = 0;
-
-  boost::dynamic_bitset<> checkSet;
-  checkSet.resize(validMoves.size());
   while (!q.empty()) {
     Move* check = q.front();
     q.pop();
@@ -174,6 +175,7 @@ void State::eat(Move* pos) {
           q.push(check->getSide(side));
         }
     }
+    if (check != pos) delete check;
   }
 }
 

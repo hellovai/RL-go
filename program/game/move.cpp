@@ -12,7 +12,6 @@ std::istream& operator>>(std::istream &input, Move & m) {
   int y;
   input >> x;
   if (x == 'p' || x == 'P') {
-    std::cout << x << std::endl;
     m.x = -1;
     m.x = -1;
     m.pass = true;
@@ -20,7 +19,7 @@ std::istream& operator>>(std::istream &input, Move & m) {
   } else {
     input >> y;
     m.y = static_cast<int>(x) - 0x41;
-    m.x = y;
+    m.x = y - 1;
     m.pass = false;
     m.setIndex();
   }
