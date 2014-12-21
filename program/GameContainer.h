@@ -4,7 +4,7 @@
 #define __GAMECONTAINER_H_INCLUDED__
 
 #include "game/game.h"
-#include "Player.h"
+#include "players/Player.h"
 
 class GameContainer {
   Game* _g;

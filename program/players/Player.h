@@ -3,7 +3,8 @@
 #ifndef __PLAYER_H_INCLUDED__
 #define __PLAYER_H_INCLUDED__
 
-#include "game/game.h"
+#include "../common.h"
+#include "../game/game.h"
 
 enum MoveChoice { MOVE = 1, UNDO, REDO, QUIT, COUNT };
 

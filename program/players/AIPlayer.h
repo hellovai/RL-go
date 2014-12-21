@@ -3,6 +3,7 @@
 #ifndef __AI_PLAYER_H_INCLUDED__
 #define __AI_PLAYER_H_INCLUDED__
 
+#include "../common.h"
 #include "Player.h"
 
 class AIPlayer : public Player {

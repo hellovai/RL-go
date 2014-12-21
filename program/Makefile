@@ -4,14 +4,15 @@ DIRS	= game
 EXE	= ./$(BIN)/game
 OBJS	= $(BUILD)/main.o
 GAMELIB	= $(LIBDIR)/libgame.a
-LIBS	=-L./$(LIBDIR) -lgame
+PLAYERLIB = $(LIBDIR)/libplayers.a
+LIBS	=-L./$(LIBDIR) -lgame -lplayers
 GDEF = -D USE_GLOG -D USE_GFLAGS
 GLIBS = -lglog -lgflags
 
 all: buildrepo build
 	$(ECHO) run $(EXE)
 
-gbuild: buildrepo ggamelib gserverlib
+gbuild: buildrepo ggamelib gplayerlib gserverlib
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(GDEF) -c ./main.cpp -o ./$(BUILD)/main.o
 	$(LD) -o $(EXE) $(OBJS) $(LIBS) $(GLIBS)
 	$(ECHO) run $(EXE)
@@ -21,9 +22,19 @@ buildrepo:
 	mkdir -p $(BUILD)
 	mkdir -p $(LIBDIR)
 
-build: gamelib serverlib
+build: gamelib playerlib serverlib
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c ./main.cpp -o ./$(BUILD)/main.o
 	$(LD) -o $(EXE) $(OBJS) $(LIBS)
+
+playerlib: buildrepo players/Player.cpp players/AIPlayer.cpp
+	(cd ./players; $(CC) -std=gnu++0x -c Player.cpp -o ../$(BUILD)/players.o)
+	(cd ./players; $(CC) -std=gnu++0x -c AIPlayer.cpp -o ../$(BUILD)/aiplayers.o)
+	$(AR) $(ARFLAGS) $(PLAYERLIB) ./$(BUILD)/players.o ./$(BUILD)/aiplayers.o
+
+gplayerlib: buildrepo players/Player.cpp players/AIPlayer.cpp
+	(cd ./players; $(CC) $(GDEF) -std=gnu++0x -c Player.cpp -o ../$(BUILD)/players.o)
+	(cd ./players; $(CC) $(GDEF) -std=gnu++0x -c AIPlayer.cpp -o ../$(BUILD)/aiplayers.o)
+	$(AR) $(ARFLAGS) $(PLAYERLIB) ./$(BUILD)/players.o ./$(BUILD)/aiplayers.o
 
 gamelib: buildrepo game/game.cpp game/move.cpp game/state.cpp
 	(cd ./game; $(CC) -std=gnu++0x -c game.cpp -o ../$(BUILD)/game.o)

@@ -3,8 +3,8 @@
 
 #include <iostream>
 #include "game/game.h"
-#include "Player.h"
-#include "AIPlayer.h"
+#include "players/Player.h"
+#include "players/AIPlayer.h"
 #include "GameContainer.h"
 
 GFLAGS(DEFINE_int32(boardsize, 19, "modify boardsize of the game");
