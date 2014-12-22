@@ -5,22 +5,34 @@
 
 #include "../common.h"
 #include "Player.h"
+#include "Brain.h"
 
 class AIPlayer : public Player {
+ protected:
+  Brain* _b;
+  virtual void needed() = 0;
+
  public:
   AIPlayer(Game* g, std::string name) : Player(g, name){};
-  ~AIPlayer() {};
+  ~AIPlayer() { delete _b; };
 
-  MoveChoice getAction() {
-    return MOVE;
-  }
+  MoveChoice getAction() { return MOVE; }
 
   Move* getMove() {
     std::vector<Move*> validMoves;
     _g->validMoves(validMoves);
-    int i = rand() % validMoves.size();
+    int i = _b->think(validMoves, _g);
     return validMoves[i];
   }
+};
+
+class RandomAIPlayer : public AIPlayer {
+  void needed(){};
+
+ public:
+  RandomAIPlayer(Game* g, std::string name) : AIPlayer(g, name) {
+    _b = new RandomBrain();
+  };
 };
 
 #endif

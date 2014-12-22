@@ -20,8 +20,8 @@ int main(int argc, char* argv[]) {
 
   Move::fill(0, Move::maxMoveSize * Move::maxMoveSize + 1);
   Game* game = new Game();
-  Player* p1 = new AIPlayer(game, "Player 1");
-  Player* p2 = new AIPlayer(game, "Player 2");
+  Player* p1 = new RandomAIPlayer(game, "Player 1");
+  Player* p2 = new RandomAIPlayer(game, "Player 2");
 
   GameContainer c(game, p1, p2);
   c.start(-1);
