@@ -28,7 +28,7 @@ class Player {
   virtual ~Player() {};
 
   virtual MoveChoice getAction() = 0;
-  virtual void getMove(Move* m) = 0;
+  virtual Move* getMove() = 0;
 };
 
 class Human : public Player {
@@ -50,8 +50,10 @@ class Human : public Player {
     return choice;
   }
 
-  void getMove(Move* m) {
-    std::cin >> *m;
+  Move* getMove() {
+    Move m;
+    std::cin >> m;
+    return Move::fetch(m);
   }
 };
 

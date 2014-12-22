@@ -18,18 +18,14 @@ class Game {
   // game states
   State *currState;
   State *startState;
-  // std::vector<Move *> moveList;
   bool finished;
   int _turn;
 
  public:
   Game();
+
   ~Game() {
     delete startState;
-    // for (std::vector<Move *>::iterator i = moveList.begin();
-    //      i != moveList.end(); ++i) {
-    //   delete i;
-    // }
   }
 
   void print() {
@@ -48,7 +44,7 @@ class Game {
   void setDebug(bool debug) { this->debug = debug; }
 
   // game functions
-  std::vector<Move> validMoves();
+  void validMoves(std::vector<Move*>& v) const;
   bool makeMove(Move *move);
   void undo();
   void redo();

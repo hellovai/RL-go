@@ -32,8 +32,6 @@ class State {
 
   explicit State();
   ~State() {
-    delete move;
-
     for (int i = 0; i < boardSize; ++i) {
       delete[] board[i];
     }

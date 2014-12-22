@@ -15,10 +15,11 @@ class AIPlayer : public Player {
     return MOVE;
   }
 
-  void getMove(Move* m) {
-    std::vector<Move> validMoves = _g->validMoves();
+  Move* getMove() {
+    std::vector<Move*> validMoves;
+    _g->validMoves(validMoves);
     int i = rand() % validMoves.size();
-    *m = validMoves[i];
+    return validMoves[i];
   }
 };
 

@@ -29,3 +29,5 @@ std::istream& operator>>(std::istream &input, Move & m) {
 bool operator==(const Move &cM1, const Move &cM2) {
   return cM1.index == cM2.index;
 }
+
+std::vector<Move*> Move::list;

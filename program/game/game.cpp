@@ -20,15 +20,12 @@ void Game::reset() {
   _turn = 1;
 }
 
-std::vector<Move> Game::validMoves() {
-  std::vector<Move> v(currState->validMoves.count());
+void Game::validMoves(std::vector<Move*>& v) const {
   int idx = currState->validMoves.find_first();
-  int i = 0;
   while (idx != boost::dynamic_bitset<>::npos) {
-    v[i++].reset(idx);
+    v.push_back(Move::list[idx]);
     idx = currState->validMoves.find_next(idx);
   }
-  return v;
 }
 
 bool Game::makeMove(Move* move) {
@@ -40,7 +37,6 @@ bool Game::makeMove(Move* move) {
     _turn++;
   } else {
     GLOG(LOG(ERROR) << "Invalid Move: " << *move;)
-    delete move;
     return false;
   }
   return true;

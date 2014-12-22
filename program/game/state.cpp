@@ -105,7 +105,6 @@ void State::createNext(Move* pos) {
       if (next->liberty(check, OTHER) == 0) {
         next->eat(check);
       }
-      delete check;
     }
   }
 }
@@ -147,9 +146,6 @@ int State::liberty(Move* toCheck, uint8_t type) {
       liberty++;
     }
     checkSet.set(check->index);
-    if (check != toCheck) {
-      delete check;
-    }
   }
 
   // unself postion
@@ -175,7 +171,6 @@ void State::eat(Move* pos) {
           q.push(check->getSide(side));
         }
     }
-    if (check != pos) delete check;
   }
 }
 

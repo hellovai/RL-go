@@ -28,8 +28,7 @@ class GameContainer {
       else if (choice == UNDO)
         _g->undo();
       else if (choice == MOVE) {
-        Move* m = new Move();
-        p->getMove(m);
+        Move* m = p->getMove();
         _g->makeMove(m);
       } else if (choice == QUIT)
         return;
