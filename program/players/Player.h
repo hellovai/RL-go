@@ -5,6 +5,7 @@
 
 #include "../common.h"
 #include "../game/game.h"
+#include <string>
 
 enum MoveChoice { MOVE = 1, UNDO, REDO, QUIT, COUNT };
 
@@ -24,8 +25,8 @@ class Player {
   std::string _name;
 
  public:
-  Player(Game* g, std::string name) : _g(g), _name(name){};
-  virtual ~Player() {};
+  Player(Game* g, std::string name) : _g(g), _name(name) {}
+  virtual ~Player() {}
 
   virtual MoveChoice getAction() = 0;
   virtual Move* getMove() = 0;
@@ -33,8 +34,8 @@ class Player {
 
 class Human : public Player {
  public:
-  Human(Game* g, std::string name) : Player(g, name){};
-  ~Human() {};
+  Human(Game* g, std::string name) : Player(g, name) {}
+  ~Human() {}
 
   MoveChoice getAction() {
     MoveChoice choice = COUNT;

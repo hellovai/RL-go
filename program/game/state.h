@@ -7,9 +7,6 @@
 #include <boost/dynamic_bitset.hpp>
 #include "move.h"
 
-#define PLAYER_ONE 1
-#define PLAYER_TWO 2
-
 typedef enum {
   SELF = 0,
   OTHER = 3,
@@ -30,7 +27,7 @@ class State {
   State* prev;
   State* next;
 
-  explicit State();
+  State();
   ~State() {
     for (int i = 0; i < boardSize; ++i) {
       delete[] board[i];
@@ -51,6 +48,20 @@ class State {
   bool makeMove(Move* pos);
 
   friend std::ostream& operator<<(std::ostream& os, const State& b);
+
+  // copy
+  State* clone() {
+    State* s = new State();
+    s->player = player;
+    s->move = move;
+    s->pass = pass;
+    s->validMoves = validMoves;
+    for (int i = 0; i < State::boardSize; i++)
+      for (int j = 0; j < State::boardSize; j++)
+        s->board[i][j] = board[i][j];
+
+    return s;
+  }
 
  private:
   // checks if the position is owned by current player, empty, or opponent

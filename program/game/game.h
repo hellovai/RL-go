@@ -16,17 +16,15 @@ class Game {
   // TODO(hellovai): scoring functions
 
   // game states
-  State *currState;
-  State *startState;
+  State* currState;
+  State* startState;
   bool finished;
   int _turn;
 
  public:
   Game();
 
-  ~Game() {
-    delete startState;
-  }
+  ~Game() { delete startState; }
 
   void print() {
     std::cout << "Turn: " << _turn << std::endl;
@@ -45,10 +43,29 @@ class Game {
 
   // game functions
   void validMoves(std::vector<Move*>& v) const;
-  bool makeMove(Move *move);
+  bool makeMove(Move* move);
   void undo();
   void redo();
   void reset();
+
+  // copy
+  void clone(const Game* g) {
+    delete startState;
+    startState = g->currState->clone();
+    currState = startState;
+  }
+
+  // TODO(this is naive)
+  int pWins(int player) { return player == winner() ? 1 : 0; }
+
+  // must call desructore for actual clean up, this still allows redo's
+  void setStartState() {
+    while (currState != startState) {
+      currState->move = nullptr;
+      currState = currState->prev;
+    }
+  }
+  const State& getState() { return *currState; }
 };
 
 #endif

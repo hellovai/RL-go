@@ -23,6 +23,10 @@ class GameContainer {
     while (!_g->isFinished() && turns-- != 0) {
       Player* p = _p[_g->turn()];
       MoveChoice choice = p->getAction();
+      GLOG(_g->print();)
+      Signature s(_g->getState());
+      MapKey m = s.getMapKey();
+      GLOG(LOG(ERROR) << "signature " << m.first << " " << m.second);
       if (choice == REDO)
         _g->redo();
       else if (choice == UNDO)

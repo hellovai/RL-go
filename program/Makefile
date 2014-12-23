@@ -23,29 +23,31 @@ buildrepo:
 	mkdir -p $(LIBDIR)
 
 build: gamelib playerlib serverlib
-	$(CC) $(CFLAGS) $(CPPFLAGS) -c ./main.cpp -o ./$(BUILD)/main.o
-	$(LD) -o $(EXE) $(OBJS) $(LIBS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) ./main.cpp -o ./$(BUILD)/main.o
+	$(LD) -o $(EXE) $(OBJS) $(LIBS) -pg
 
-playerlib: buildrepo players/Player.cpp players/AIPlayer.cpp
-	(cd ./players; $(CC) -std=gnu++0x -c Player.cpp -o ../$(BUILD)/players.o)
-	(cd ./players; $(CC) -std=gnu++0x -c AIPlayer.cpp -o ../$(BUILD)/aiplayers.o)
-	$(AR) $(ARFLAGS) $(PLAYERLIB) ./$(BUILD)/players.o ./$(BUILD)/aiplayers.o
+playerlib: buildrepo players/Player.cpp players/AIPlayer.cpp players/UCTBrain.cpp
+	(cd ./players; $(CC) $(CFLAGS) $(CPPFLAGS) Player.cpp -o ../$(BUILD)/players.o)
+	(cd ./players; $(CC) $(CFLAGS) $(CPPFLAGS) AIPlayer.cpp -o ../$(BUILD)/aiplayers.o)
+	(cd ./players; $(CC) $(CFLAGS) $(CPPFLAGS) UCTBrain.cpp -o ../$(BUILD)/uctbrain.o)
+	$(AR) $(ARFLAGS) $(PLAYERLIB) ./$(BUILD)/players.o ./$(BUILD)/aiplayers.o ./$(BUILD)/uctbrain.o
 
 gplayerlib: buildrepo players/Player.cpp players/AIPlayer.cpp
-	(cd ./players; $(CC) $(GDEF) -std=gnu++0x -c Player.cpp -o ../$(BUILD)/players.o)
-	(cd ./players; $(CC) $(GDEF) -std=gnu++0x -c AIPlayer.cpp -o ../$(BUILD)/aiplayers.o)
-	$(AR) $(ARFLAGS) $(PLAYERLIB) ./$(BUILD)/players.o ./$(BUILD)/aiplayers.o
+	(cd ./players; $(CC) $(GDEF) $(CFLAGS) $(CPPFLAGS) Player.cpp -o ../$(BUILD)/players.o)
+	(cd ./players; $(CC) $(GDEF) $(CFLAGS) $(CPPFLAGS) AIPlayer.cpp -o ../$(BUILD)/aiplayers.o)
+	(cd ./players; $(CC) $(GDEF) $(CFLAGS) $(CPPFLAGS) UCTBrain.cpp -o ../$(BUILD)/uctbrain.o)
+	$(AR) $(ARFLAGS) $(PLAYERLIB) ./$(BUILD)/players.o ./$(BUILD)/aiplayers.o ./$(BUILD)/uctbrain.o
 
 gamelib: buildrepo game/game.cpp game/move.cpp game/state.cpp
-	(cd ./game; $(CC) -std=gnu++0x -c game.cpp -o ../$(BUILD)/game.o)
-	(cd ./game; $(CC) -std=gnu++0x -c move.cpp -o ../$(BUILD)/move.o)
-	(cd ./game; $(CC) -std=gnu++0x -c state.cpp -o ../$(BUILD)/state.o)
+	(cd ./game; $(CC) $(CFLAGS) $(CPPFLAGS) game.cpp -o ../$(BUILD)/game.o)
+	(cd ./game; $(CC) $(CFLAGS) $(CPPFLAGS) move.cpp -o ../$(BUILD)/move.o)
+	(cd ./game; $(CC) $(CFLAGS) $(CPPFLAGS) state.cpp -o ../$(BUILD)/state.o)
 	$(AR) $(ARFLAGS) $(GAMELIB) ./$(BUILD)/game.o ./$(BUILD)/move.o ./$(BUILD)/state.o
 
 ggamelib: buildrepo game/game.cpp game/move.cpp game/state.cpp
-	(cd ./game; $(CC) $(GDEF) -std=gnu++0x -c game.cpp -o ../$(BUILD)/game.o)
-	(cd ./game; $(CC) $(GDEF) -std=gnu++0x -c move.cpp -o ../$(BUILD)/move.o)
-	(cd ./game; $(CC) $(GDEF) -std=gnu++0x -c state.cpp -o ../$(BUILD)/state.o)
+	(cd ./game; $(CC) $(GDEF) $(CFLAGS) $(CPPFLAGS) game.cpp -o ../$(BUILD)/game.o)
+	(cd ./game; $(CC) $(GDEF) $(CFLAGS) $(CPPFLAGS) move.cpp -o ../$(BUILD)/move.o)
+	(cd ./game; $(CC) $(GDEF) $(CFLAGS) $(CPPFLAGS) state.cpp -o ../$(BUILD)/state.o)
 	$(AR) $(ARFLAGS) $(GAMELIB) ./$(BUILD)/game.o ./$(BUILD)/move.o ./$(BUILD)/state.o
 
 serverlib:

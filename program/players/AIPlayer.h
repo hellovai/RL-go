@@ -22,7 +22,7 @@ class AIPlayer : public Player {
     std::vector<Move*> validMoves;
     _g->validMoves(validMoves);
     int i = _b->think(validMoves, _g);
-    return validMoves[i];
+    return Move::list[i];
   }
 };
 
@@ -32,6 +32,15 @@ class RandomAIPlayer : public AIPlayer {
  public:
   RandomAIPlayer(Game* g, std::string name) : AIPlayer(g, name) {
     _b = new RandomBrain();
+  };
+};
+
+class UCTAIPlayer : public AIPlayer {
+  void needed(){};
+
+ public:
+  UCTAIPlayer(Game* g, std::string name) : AIPlayer(g, name) {
+    _b = new UCTBrain();
   };
 };
 

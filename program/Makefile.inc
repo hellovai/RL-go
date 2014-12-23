@@ -1,6 +1,6 @@
 # put common definitions in here
 CC  = g++
-CPPFLAGS = -g -std=gnu++0x
+CPPFLAGS = -g -std=gnu++0x -c -pg
 LD  = g++
 LDFLAGS =
 AR  = ar

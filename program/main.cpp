@@ -1,4 +1,5 @@
-// Copyright 2014 hellovai
+// Copyright 2014 (hellovai)
+
 #include "common.h"
 
 #include <iostream>
@@ -12,6 +13,7 @@ GFLAGS(DEFINE_int32(boardsize, 19, "modify boardsize of the game");
 
 int State::boardSize = FLAGS_boardsize;
 int Move::maxMoveSize = FLAGS_boardsize;
+int Node::maxActions = FLAGS_boardsize * FLAGS_boardsize + 1;
 
 int main(int argc, char* argv[]) {
   GLOG(google::InitGoogleLogging(argv[0]);)
@@ -20,11 +22,11 @@ int main(int argc, char* argv[]) {
 
   Move::fill(0, Move::maxMoveSize * Move::maxMoveSize + 1);
   Game* game = new Game();
-  Player* p1 = new RandomAIPlayer(game, "Player 1");
+  Player* p1 = new UCTAIPlayer(game, "Player 1");
   Player* p2 = new RandomAIPlayer(game, "Player 2");
 
   GameContainer c(game, p1, p2);
-  c.start(-1);
+  c.start(1);
 
   delete p1;
   delete p2;
@@ -33,4 +35,11 @@ int main(int argc, char* argv[]) {
 
   GLOG(google::ShutDownCommandLineFlags();)
   return 0;
+}
+
+float frand(float m, bool sign) {
+  return sign ? ((static_cast<float>(rand()) / static_cast<float>(RAND_MAX) *
+                  2 * m) -
+                 m)
+              : (static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * m);
 }

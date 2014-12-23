@@ -36,7 +36,7 @@ bool Game::makeMove(Move* move) {
     currState = currState->next;
     _turn++;
   } else {
-    GLOG(LOG(ERROR) << "Invalid Move: " << *move;)
+    // GLOG(LOG(ERROR) << "Invalid Move: " << *move;)
     return false;
   }
   return true;
